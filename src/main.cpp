@@ -16,6 +16,7 @@
 #include <SPI.h>
 #include "Adafruit_GFX.h"
 #include "Adafruit_HX8357.h"
+#include "TouchScreen.h"
 
 // Flexible pin config
 #define TFT_MOSI 11
@@ -25,11 +26,39 @@
 #define TFT_DC    9
 #define TFT_RST  -1  // Use -1 if reset is not connected
 
+// These are the four touchscreen analog pins
+#define YP 4   // must be an analog pin, use "An" notation!
+#define XP 5   // must be an analog pin, use "An" notation!
+#define YM 6   // can be a digital pin
+#define XM 7   // can be a digital pin
+
+// The pin assignments are weird, so this is to correct them so that the wiring can be clean
+#define NEW_YP XM
+#define NEW_XP YP
+#define NEW_YM XP
+#define NEW_XM YM
+
+// This is calibration data for the raw touch data to the screen coordinates
+#define TS_MINX -2600
+#define TS_MINY -2400
+#define TS_MAXX 660
+#define TS_MAXY 420
+
 // Create a custom SPI bus
 SPIClass spiTFT(FSPI);  // Or VSPI — just avoid overlap with other peripherals
 
 // Pass the custom SPI bus to the display driver
 Adafruit_HX8357 tft = Adafruit_HX8357(&spiTFT, TFT_CS, TFT_DC, TFT_RST);
+
+// For better pressure precision, we need to know the resistance
+// between X+ and X- Use any multimeter to read it
+// For the one we're using, its 300 ohms across the X plate
+TouchScreen ts = TouchScreen(NEW_XP, NEW_YP, NEW_XM, NEW_YM, 300);
+
+// Size of the color selection boxes and the paintbrush size
+#define BOXSIZE 40
+#define PENRADIUS 3
+int oldcolor, currentcolor;
 
 // Add this at the top, before setup()
 unsigned long testText();
@@ -37,7 +66,6 @@ unsigned long testText();
 void setup() {
   Serial.begin(115200);
   delay(500);
-  Serial.println("HX8357D Test on ESP32-S3 with custom SPI pins");
 
   spiTFT.begin(TFT_SCLK, TFT_MISO, TFT_MOSI, TFT_CS);
 
@@ -47,236 +75,93 @@ void setup() {
   tft.setRotation(1);
   tft.fillScreen(HX8357_BLACK);
 
-  Serial.print(F("Text benchmark: "));
-  Serial.println(testText());
+  // make the color selection boxes
+  tft.fillRect(0, 0, BOXSIZE, BOXSIZE, HX8357_RED);
+  tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, HX8357_YELLOW);
+  tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, HX8357_GREEN);
+  tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, HX8357_CYAN);
+  tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, HX8357_BLUE);
+  tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, HX8357_MAGENTA);
+  tft.fillRect(BOXSIZE*6, 0, BOXSIZE, BOXSIZE, HX8357_BLACK);
+  tft.fillRect(BOXSIZE*6, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
+ 
+  // select the current color 'red'
+  tft.drawRect(0, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
+  currentcolor = HX8357_RED;
 }
 
-void loop(void) {
-  for(uint8_t rotation=0; rotation<4; rotation++) {
-    tft.setRotation(rotation);
-    testText();
-    delay(1000);
+void loop()
+{
+  // Retrieve a point  
+  TSPoint p = ts.getPoint();
+
+  if (p.z == 0 || p.x < -3000) {
+    return;
   }
-}
 
-unsigned long testFillScreen() {
-  unsigned long start = micros();
-  tft.fillScreen(HX8357_RED);
-  tft.fillScreen(HX8357_GREEN);
-  tft.fillScreen(HX8357_BLUE);
-  tft.fillScreen(HX8357_WHITE);
-  return micros() - start;
-}
+  Serial.print("X: ");
+  Serial.print(p.x);
+  Serial.print(" Y: ");
+  Serial.print(p.y);
+  Serial.print(" Pressure: ");
+  Serial.println(p.z);  
+   
+  // Scale from ~0->1000 to tft.width using the calibration #'s
+  p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.width());
+  p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
+    
+  if (p.y < BOXSIZE) {
+     oldcolor = currentcolor;
 
+     if (p.x < BOXSIZE) { 
+       currentcolor = HX8357_RED; 
+       tft.drawRect(0, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
+     } else if (p.x < BOXSIZE*2) {
+       currentcolor = HX8357_YELLOW;
+       tft.drawRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
+     } else if (p.x < BOXSIZE*3) {
+       currentcolor = HX8357_GREEN;
+       tft.drawRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
+     } else if (p.x < BOXSIZE*4) {
+       currentcolor = HX8357_CYAN;
+       tft.drawRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
+     } else if (p.x < BOXSIZE*5) {
+       currentcolor = HX8357_BLUE;
+       tft.drawRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
+     } else if (p.x < BOXSIZE*6) {
+       currentcolor = HX8357_MAGENTA;
+       tft.drawRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
+     } else if (p.x < BOXSIZE*7) {
+       currentcolor = HX8357_WHITE;
+       tft.drawRect(BOXSIZE*6, 0, BOXSIZE, BOXSIZE, HX8357_RED);
+     } else if (p.x < BOXSIZE*8) {
+       currentcolor = HX8357_BLACK;
+       tft.drawRect(BOXSIZE*7, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
+     }
 
-unsigned long testText() {
-  tft.fillScreen(HX8357_BLACK);
-  unsigned long start = micros();
-  tft.setCursor(0, 0);
-  tft.setTextColor(HX8357_WHITE);  tft.setTextSize(1);
-  tft.println("Hello World!");
-  tft.setTextColor(HX8357_YELLOW); tft.setTextSize(2);
-  tft.println(1234.56);
-  tft.setTextColor(HX8357_RED);    tft.setTextSize(3);
-  tft.println(0xDEADBEEF, HEX);
-  tft.println();
-  tft.setTextColor(HX8357_GREEN);
-  tft.setTextSize(5);
-  tft.println("Groop");
-  tft.setTextSize(2);
-  tft.println("I implore thee,");
-  tft.setTextSize(1);
-  tft.println("my foonting turlingdromes.");
-  tft.println("And hooptiously drangle me");
-  tft.println("with crinkly bindlewurdles,");
-  tft.println("Or I will rend thee");
-  tft.println("in the gobberwarts");
-  tft.println("with my blurglecruncheon,");
-  tft.println("see if I don't!");
+     if (oldcolor != currentcolor) {
+        if (oldcolor == HX8357_RED) 
+          tft.fillRect(0, 0, BOXSIZE, BOXSIZE, HX8357_RED);
+        if (oldcolor == HX8357_YELLOW) 
+          tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, HX8357_YELLOW);
+        if (oldcolor == HX8357_GREEN) 
+          tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, HX8357_GREEN);
+        if (oldcolor == HX8357_CYAN) 
+          tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, HX8357_CYAN);
+        if (oldcolor == HX8357_BLUE) 
+          tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, HX8357_BLUE);
+        if (oldcolor == HX8357_MAGENTA) 
+          tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, HX8357_MAGENTA);
+        if (oldcolor == HX8357_WHITE) 
+          tft.fillRect(BOXSIZE*6, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
+        if (oldcolor == HX8357_BLACK) 
+          tft.fillRect(BOXSIZE*7, 0, BOXSIZE, BOXSIZE, HX8357_BLACK);
+     }
+  }
   
-  tft.setTextColor(HX8357_WHITE);
-  tft.println(F("Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book her sister was reading, but it had no pictures or conversations in it, 'and what is the use of a book,' thought Alice 'without pictures or conversations?'"));
-
-tft.println(F("So she was considering in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit with pink eyes ran close by her."));
-
-tft.println(F("There was nothing so very remarkable in that; nor did Alice think it so very much out of the way to hear the Rabbit say to itself, 'Oh dear! Oh dear! I shall be late!' (when she thought it over afterwards, it occurred to her that she ought to have wondered at this, but at the time it all seemed quite natural); but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it, and burning with curiosity, she ran across the field after it, and fortunately was just in time to see it pop down a large rabbit-hole under the hedge."));
-
-tft.println(F("In another moment down went Alice after it, never once considering how in the world she was to get out again."));
-
-tft.println(F("The rabbit-hole went straight on like a tunnel for some way, and then dipped suddenly down, so suddenly that Alice had not a moment to think about stopping herself before she found herself falling down a very deep well."));
-
-tft.println(F("Either the well was very deep, or she fell very slowly, for she had plenty of time as she went down to look about her and to wonder what was going to happen next. First, she tried to look down and make out what she was coming to, but it was too dark to see anything; then she looked at the sides of the well, and noticed that they were filled with cupboards and book-shelves; here and there she saw maps and pictures hung upon pegs. She took down a jar from one of the shelves as she passed; it was labelled 'ORANGE MARMALADE', but to her great disappointment it was empty: she did not like to drop the jar for fear of killing somebody, so managed to put it into one of the cupboards as she fell past it."));
-  
-  return micros() - start;
-}
-
-unsigned long testLines(uint16_t color) {
-  unsigned long start;
-  int           x1, y1, x2, y2,
-                w = tft.width(),
-                h = tft.height();
-
-  tft.fillScreen(HX8357_BLACK);
-
-  x1 = y1 = 0;
-  y2    = h - 1;
-  start = micros();
-  for(x2=0; x2<w; x2+=6) tft.drawLine(x1, y1, x2, y2, color);
-  x2    = w - 1;
-  for(y2=0; y2<h; y2+=6) tft.drawLine(x1, y1, x2, y2, color);
-
-  return micros() - start;
-}
-
-unsigned long testFastLines(uint16_t color1, uint16_t color2) {
-  unsigned long start;
-  int           x, y, w = tft.width(), h = tft.height();
-
-  tft.fillScreen(HX8357_BLACK);
-  start = micros();
-  for(y=0; y<h; y+=5) tft.drawFastHLine(0, y, w, color1);
-  for(x=0; x<w; x+=5) tft.drawFastVLine(x, 0, h, color2);
-
-  return micros() - start;
-}
-
-unsigned long testRects(uint16_t color) {
-  unsigned long start;
-  int           n, i, i2,
-                cx = tft.width()  / 2,
-                cy = tft.height() / 2;
-
-  tft.fillScreen(HX8357_BLACK);
-  n     = min(tft.width(), tft.height());
-  start = micros();
-  for(i=2; i<n; i+=6) {
-    i2 = i / 2;
-    tft.drawRect(cx-i2, cy-i2, i, i, color);
+  if (((p.y-PENRADIUS) > BOXSIZE) && ((p.y+PENRADIUS) < tft.height())) {
+    tft.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
+  } else if (((p.x-PENRADIUS) > BOXSIZE*8) && ((p.y+PENRADIUS) < tft.height())) {
+    tft.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
   }
-
-  return micros() - start;
-}
-
-unsigned long testFilledRects(uint16_t color1, uint16_t color2) {
-  unsigned long start, t = 0;
-  int           n, i, i2,
-                cx = tft.width()  / 2 - 1,
-                cy = tft.height() / 2 - 1;
-
-  tft.fillScreen(HX8357_BLACK);
-  n = min(tft.width(), tft.height());
-  for(i=n; i>0; i-=6) {
-    i2    = i / 2;
-    start = micros();
-    tft.fillRect(cx-i2, cy-i2, i, i, color1);
-    t    += micros() - start;
-    // Outlines are not included in timing results
-    tft.drawRect(cx-i2, cy-i2, i, i, color2);
-  }
-
-  return t;
-}
-
-unsigned long testFilledCircles(uint8_t radius, uint16_t color) {
-  unsigned long start;
-  int x, y, w = tft.width(), h = tft.height(), r2 = radius * 2;
-
-  tft.fillScreen(HX8357_BLACK);
-  start = micros();
-  for(x=radius; x<w; x+=r2) {
-    for(y=radius; y<h; y+=r2) {
-      tft.fillCircle(x, y, radius, color);
-    }
-  }
-
-  return micros() - start;
-}
-
-unsigned long testCircles(uint8_t radius, uint16_t color) {
-  unsigned long start;
-  int           x, y, r2 = radius * 2,
-                w = tft.width()  + radius,
-                h = tft.height() + radius;
-
-  // Screen is not cleared for this one -- this is
-  // intentional and does not affect the reported time.
-  start = micros();
-  for(x=0; x<w; x+=r2) {
-    for(y=0; y<h; y+=r2) {
-      tft.drawCircle(x, y, radius, color);
-    }
-  }
-
-  return micros() - start;
-}
-
-unsigned long testTriangles() {
-  unsigned long start;
-  int           n, i, cx = tft.width()  / 2 - 1,
-                      cy = tft.height() / 2 - 1;
-
-  tft.fillScreen(HX8357_BLACK);
-  n     = min(cx, cy);
-  start = micros();
-  for(i=0; i<n; i+=5) {
-    tft.drawTriangle(
-      cx    , cy - i, // peak
-      cx - i, cy + i, // bottom left
-      cx + i, cy + i, // bottom right
-      tft.color565(200, 20, i));
-  }
-
-  return micros() - start;
-}
-
-unsigned long testFilledTriangles() {
-  unsigned long start, t = 0;
-  int           i, cx = tft.width()  / 2 - 1,
-                   cy = tft.height() / 2 - 1;
-
-  tft.fillScreen(HX8357_BLACK);
-  start = micros();
-  for(i=min(cx,cy); i>10; i-=5) {
-    start = micros();
-    tft.fillTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i,
-      tft.color565(0, i, i));
-    t += micros() - start;
-    tft.drawTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i,
-      tft.color565(i, i, 0));
-  }
-
-  return t;
-}
-
-unsigned long testRoundRects() {
-  unsigned long start;
-  int           w, i, i2,
-                cx = tft.width()  / 2 ,
-                cy = tft.height() / 2 ;
-
-  tft.fillScreen(HX8357_BLACK);
-  w     = min(tft.width(), tft.height());
-  start = micros();
-  for(i=0; i<w; i+=8) {
-    i2 = i / 2 - 2;
-    tft.drawRoundRect(cx-i2, cy-i2, i, i, i/8, tft.color565(i, 100, 100));
-  }
-
-  return micros() - start;
-}
-
-unsigned long testFilledRoundRects() {
-  unsigned long start;
-  int           i, i2,
-                cx = tft.width()  / 2 + 10,
-                cy = tft.height() / 2 + 10;
-
-  tft.fillScreen(HX8357_BLACK);
-  start = micros();
-  for(i=min(tft.width(), tft.height()) - 20; i>25; i-=6) {
-    i2 = i / 2;
-    tft.fillRoundRect(cx-i2, cy-i2, i-20, i-20, i/8, tft.color565(100, i/2, 100));
-  }
-
-  return micros() - start;
 }
