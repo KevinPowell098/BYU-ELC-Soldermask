@@ -16,7 +16,7 @@
 /** NOT FOR USE WITH THE TOUCH SHIELD, ONLY FOR THE 3.5" BREAKOUT! **/
 
 #include <Adafruit_GFX.h>    // Core graphics library
-#includez
+#include <Wire.h>
 #include "Adafruit_HX8357.h"
 #include "TouchScreen.h"
 
