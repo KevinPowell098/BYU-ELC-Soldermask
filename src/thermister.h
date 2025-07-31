@@ -1,4 +1,4 @@
-
+#pragma once
 #include <Adafruit_MAX31856.h>
 
 #define DRDY_PIN 3

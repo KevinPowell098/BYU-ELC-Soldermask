@@ -1,5 +1,5 @@
 /***************************************************
-Temp and Touch working
+Lets get a menu
  ****************************************************/
 
 #include <SPI.h>
@@ -7,6 +7,7 @@ Temp and Touch working
 #include "Adafruit_HX8357.h"
 #include "TouchScreen.h"
 #include "thermister.h"
+#include "menugraphics.h"
 
 // Flexible pin config
 #define TFT_MOSI 11
@@ -80,30 +81,17 @@ void setup() {
 
   spiTFT.begin(TFT_SCLK, TFT_MISO, TFT_MOSI, TFT_CS);
 
-  tft.begin(); // Don't use 'if (!tft.begin())'
+  tft.begin();
   Serial.println("HX8357 init OK");
 
   tft.setRotation(1);
   tft.fillScreen(HX8357_BLACK);
-
-  // make the color selection boxes
-  tft.fillRect(0, 0, BOXSIZE, BOXSIZE, HX8357_RED);
-  tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, HX8357_YELLOW);
-  tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, HX8357_GREEN);
-  tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, HX8357_CYAN);
-  tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, HX8357_BLUE);
-  tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, HX8357_MAGENTA);
-  tft.fillRect(BOXSIZE*6, 0, BOXSIZE, BOXSIZE, HX8357_BLACK);
-  tft.fillRect(BOXSIZE*6, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
- 
-  // select the current color 'red'
-  tft.drawRect(0, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
-  currentcolor = HX8357_RED;
  
   Therm_setup();
 
   drawNumberBox(get_temperature());
   tempprevMillis = millis();
+  currentcolor = HX8357_YELLOW;
 }
 
 void loop(){
@@ -115,6 +103,7 @@ void loop(){
     drawNumberBox(get_temperature());
     tempprevMillis = currenttempMillis;
   }
+
 
   if (p.z == 0 || p.x < -3000) {
     return;
@@ -130,55 +119,6 @@ void loop(){
   // Scale from ~0->1000 to tft.width using the calibration #'s
   p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.width());
   p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
-
-  if (p.y < BOXSIZE) {
-     oldcolor = currentcolor;
-
-     if (p.x < BOXSIZE) { 
-       currentcolor = HX8357_RED; 
-       tft.drawRect(0, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
-     } else if (p.x < BOXSIZE*2) {
-       currentcolor = HX8357_YELLOW;
-       tft.drawRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
-     } else if (p.x < BOXSIZE*3) {
-       currentcolor = HX8357_GREEN;
-       tft.drawRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
-     } else if (p.x < BOXSIZE*4) { 
-       currentcolor = HX8357_CYAN;
-       tft.drawRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
-     } else if (p.x < BOXSIZE*5) {
-       currentcolor = HX8357_BLUE;
-       tft.drawRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
-     } else if (p.x < BOXSIZE*6) {
-       currentcolor = HX8357_MAGENTA;
-       tft.drawRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
-     } else if (p.x < BOXSIZE*7) {
-       currentcolor = HX8357_WHITE;
-       tft.drawRect(BOXSIZE*6, 0, BOXSIZE, BOXSIZE, HX8357_RED);
-     } else if (p.x < BOXSIZE*8) {
-       currentcolor = HX8357_BLACK;
-       tft.drawRect(BOXSIZE*7, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
-     }
-
-     if (oldcolor != currentcolor) {
-        if (oldcolor == HX8357_RED) 
-          tft.fillRect(0, 0, BOXSIZE, BOXSIZE, HX8357_RED);
-        if (oldcolor == HX8357_YELLOW) 
-          tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, HX8357_YELLOW);
-        if (oldcolor == HX8357_GREEN) 
-          tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, HX8357_GREEN);
-        if (oldcolor == HX8357_CYAN) 
-          tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, HX8357_CYAN);
-        if (oldcolor == HX8357_BLUE) 
-          tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, HX8357_BLUE);
-        if (oldcolor == HX8357_MAGENTA) 
-          tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, HX8357_MAGENTA);
-        if (oldcolor == HX8357_WHITE) 
-          tft.fillRect(BOXSIZE*6, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
-        if (oldcolor == HX8357_BLACK) 
-          tft.fillRect(BOXSIZE*7, 0, BOXSIZE, BOXSIZE, HX8357_BLACK);
-     }
-  }
   
   if (((p.y-PENRADIUS) > BOXSIZE) && ((p.y+PENRADIUS) < tft.height())) {
     tft.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
