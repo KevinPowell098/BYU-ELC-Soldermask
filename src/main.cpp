@@ -1,5 +1,5 @@
 /***************************************************
-This is my attempt to get touch and temp going
+Temp and Touch working
  ****************************************************/
 
 #include <SPI.h>
