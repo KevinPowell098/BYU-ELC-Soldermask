@@ -6,6 +6,7 @@ This is my attempt to get touch and temp going
 #include "Adafruit_GFX.h"
 #include "Adafruit_HX8357.h"
 #include "TouchScreen.h"
+#include "thermister.h"
 
 // Flexible pin config
 #define TFT_MOSI 11
@@ -31,7 +32,7 @@ This is my attempt to get touch and temp going
 #define TS_MINX -2600
 #define TS_MINY -2400
 #define TS_MAXX 660
-#define TS_MAXY 420
+#define TS_MAXY 150
 
 // Create a custom SPI bus
 SPIClass spiTFT(FSPI);  // Or VSPI — just avoid overlap with other peripherals
@@ -49,12 +50,30 @@ TouchScreen ts = TouchScreen(NEW_XP, NEW_YP, NEW_XM, NEW_YM, 300);
 #define PENRADIUS 3
 int oldcolor, currentcolor;
 
+//Temp box
+#define NUMBOX_X (tft.width() - 50)
+#define NUMBOX_Y (tft.height() - 50)
+#define NUMBOX_SIZE 50
+
+
 // Add this at the top, before setup()
 unsigned long testText();
 
+void drawNumberBox(float num) {
+  // Draw the box
+  tft.fillRect(NUMBOX_X, NUMBOX_Y, NUMBOX_SIZE, NUMBOX_SIZE, HX8357_WHITE);
+  tft.drawRect(NUMBOX_X, NUMBOX_Y, NUMBOX_SIZE, NUMBOX_SIZE, HX8357_BLACK);
+
+  // Draw the number
+  tft.setTextColor(HX8357_BLACK);
+  tft.setTextSize(1);
+  tft.setCursor(NUMBOX_X + 10, NUMBOX_Y + 15);  // Adjust for center-ish text
+  tft.print(num, 2);
+}
+
 void setup() {
   Serial.begin(115200);
-  delay(500);
+  delay(5000);
 
   spiTFT.begin(TFT_SCLK, TFT_MISO, TFT_MOSI, TFT_CS);
 
@@ -77,10 +96,16 @@ void setup() {
   // select the current color 'red'
   tft.drawRect(0, 0, BOXSIZE, BOXSIZE, HX8357_WHITE);
   currentcolor = HX8357_RED;
+ 
+  Therm_setup();
+
+  drawNumberBox(get_temperature());
+  delay(5000);
+  Serial.println("In delay, any box?");
+  delay(1000);
 }
 
-void loop()
-{
+void loop(){
   // Retrieve a point  
   TSPoint p = ts.getPoint();
 
@@ -98,8 +123,10 @@ void loop()
   // Scale from ~0->1000 to tft.width using the calibration #'s
   p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.width());
   p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
-    
-  if (p.y < BOXSIZE) {
+  if (p.x > NUMBOX_X && p.y > NUMBOX_Y) {
+    drawNumberBox(get_temperature());
+  }
+  else if (p.y < BOXSIZE) {
      oldcolor = currentcolor;
 
      if (p.x < BOXSIZE) { 
