@@ -19,6 +19,8 @@
 #include "TouchScreen.h"
 #include "lcd.h"
 #include "fonts.h"
+#include "font_stan7.h"
+#include "font_stan9.h"
 
 // Flexible pin config
 #define TFT_MOSI 11
@@ -87,7 +89,8 @@ void loop()
   // Draw a red pixel into the buffer
   drawRectFB(x, 0, BOXSIZE, BOXSIZE, tft.color565(0, 100, 200));
 
-  drawWordFB(10, 50, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", tft.color565(255, 255, 255));
+  drawWordFB(10, 50, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", tft.color565(255, 255, 255), FONT_STAN9);
+  drawWordFB(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", tft.color565(255, 255, 255), FONT_STAN7);
 
   // Push buffer to screen
   pushFramebuffer(tft);
