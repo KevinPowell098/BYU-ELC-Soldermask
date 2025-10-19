@@ -93,7 +93,7 @@ void loop()
   drawRectFB(x, 0, BOXSIZE, BOXSIZE, 0x5AFF);
 
   drawWordFB(10, 50, "Hi there, Kevin!", 0xFFFF, FONT_STAN9);
-  drawWordFB(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0xFFFF, FONT_STAN7);
+  drawWordFB(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 0xFFFF, FONT_STAN7);
 
   // Push buffer to screen
   pushFramebuffer(tft);
