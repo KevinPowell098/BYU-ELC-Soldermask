@@ -17,6 +17,7 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_HX8357.h"
 #include "TouchScreen.h"
+
 #include "lcd.h"
 #include "fonts.h"
 #include "font_stan7.h"
@@ -75,6 +76,8 @@ void setup() {
 
   tft.setRotation(0);
   tft.fillScreen(HX8357_BLACK);
+
+  initFonts();
 }
 
 void loop()
@@ -82,15 +85,15 @@ void loop()
   static int x = 0;
 
   initFramebuffer();
-  // fillScreenFB(tft.color565(0, 0, 0));
+  fillScreenFB(0x000);
 
   x = (x + 5) % 200;
 
   // Draw a red pixel into the buffer
-  drawRectFB(x, 0, BOXSIZE, BOXSIZE, tft.color565(0, 100, 200));
+  drawRectFB(x, 0, BOXSIZE, BOXSIZE, 0x5AFF);
 
-  drawWordFB(10, 50, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", tft.color565(255, 255, 255), FONT_STAN9);
-  drawWordFB(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", tft.color565(255, 255, 255), FONT_STAN7);
+  drawWordFB(10, 50, "Hi there, Kevin!", 0xFFFF, FONT_STAN9);
+  drawWordFB(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0xFFFF, FONT_STAN7);
 
   // Push buffer to screen
   pushFramebuffer(tft);

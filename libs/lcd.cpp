@@ -1,4 +1,3 @@
-// lcd.cpp
 #include "lcd.h"
 #include <esp_heap_caps.h>
 

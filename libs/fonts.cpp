@@ -7,9 +7,19 @@
 #define TFT_HEIGHT 480
 
 
+void initFonts() {
+  initFontStan7();
+  initFontStan9();
+}
+
 size_t drawCharFB(int16_t x, int16_t y, char c, uint16_t color, const Font& font) {
+  // check if char does not exist in font map
   auto it = font.chars->find(c);
   if (it == font.chars->end()) {
+    // return portion of font width if char is a space
+    if (c == ' ') return ceil(font.WIDTH / 2.0);
+
+    // otherwise print default shape and then return font width
     drawRectFB(x, y, font.WIDTH, font.HEIGHT, color);
     return font.WIDTH;
   }
