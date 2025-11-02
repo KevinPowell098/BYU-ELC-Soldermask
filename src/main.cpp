@@ -22,6 +22,8 @@
 #include "fonts.h"
 #include "font_stan7.h"
 #include "font_stan9.h"
+#include "font_stan12.h"
+#include "font_stan16.h"
 
 // Flexible pin config
 #define TFT_MOSI 11
@@ -66,6 +68,8 @@ TouchScreen ts = TouchScreen(NEW_XP, NEW_YP, NEW_XM, NEW_YM, 300);
 int oldcolor, currentcolor;
 
 void setup() {
+  Serial.println("DEBUG - Entering setup()");
+
   Serial.begin(115200);
   delay(500);
 
@@ -77,7 +81,7 @@ void setup() {
   tft.setRotation(0);
   tft.fillScreen(HX8357_BLACK);
 
-  initFonts();
+  Serial.println("DEBUG - Leaving setup()");
 }
 
 void loop()
@@ -92,8 +96,10 @@ void loop()
   // Draw a red pixel into the buffer
   drawRectFB(x, 0, BOXSIZE, BOXSIZE, 0x5AFF);
 
-  drawWordFB(10, 50, "Hi there, Kevin!", 0xFFFF, FONT_STAN9);
-  drawWordFB(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 0xFFFF, FONT_STAN7);
+  drawWordFB(10, 50, "ABC", 0xFFFF, FONT_STAN16);
+  drawWordFB(10, 80, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 0xFFFF, FONT_STAN12);
+  drawWordFB(10, 130, "Hi there, Kevin!", 0xFFFF, FONT_STAN9);
+  drawWordFB(10, 150, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 0xFFFF, FONT_STAN7);
 
   // Push buffer to screen
   pushFramebuffer(tft);

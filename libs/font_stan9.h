@@ -1,7 +1,8 @@
 #pragma once
 #include "fonts.h"
 
-extern std::map<char, std::vector<std::vector<bool>>> chars_stan9;
-extern Font FONT_STAN9;
+#define W_STAN9 7
+#define H_STAN9 9
 
-const void initFontStan9();
+extern const uint16_t chars_stan9[];
+extern Font FONT_STAN9;

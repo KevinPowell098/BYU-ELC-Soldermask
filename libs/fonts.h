@@ -7,12 +7,13 @@
 #pragma once
 
 struct Font {
-  std::map<char, std::vector<std::vector<bool>>>* chars;
+  const uint16_t* chars;
+  const size_t length;
   const char* name;
   const int WIDTH;
   const int HEIGHT;
 };
 
-void initFonts();
-size_t drawCharFB(int16_t x, int16_t y, char c, uint16_t color, const Font& font);
-void drawWordFB(int16_t x, int16_t y, char* text, uint16_t color, const Font& font);
+int32_t findChar(const char c, const Font& font);
+size_t drawCharFB(int16_t x, int16_t y, const char c, uint16_t color, const Font& font);
+void drawWordFB(int16_t x, int16_t y, const char* text, uint16_t color, const Font& font);

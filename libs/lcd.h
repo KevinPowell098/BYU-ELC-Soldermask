@@ -3,6 +3,7 @@
 #define LCD_H
 
 #include <Adafruit_HX8357.h>
+#pragma once
 
 extern uint16_t* framebuffer;   // pointer to the buffer
 
