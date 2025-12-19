@@ -15,9 +15,9 @@
 
 
 // function to return start position of a letter, -1 if not found
-int32_t findChar(const char c, const Font& font) {
+int16_t findChar(const char c, const Font& font) {
   // iterate through every letter in the font
-  for (size_t i = 0; i < font.length;) {
+  for (int16_t i = 0; i < font.length;) {
     // return position of char if found 
     if (font.chars[i] == c) {
       return i;
@@ -30,9 +30,9 @@ int32_t findChar(const char c, const Font& font) {
 }
 
 // function to draw letter into buffer, return width of letter
-size_t drawCharFB(int16_t x, int16_t y, const char c, uint16_t color, const Font& font) {
+uint16_t drawCharFB(int16_t x, int16_t y, const char c, uint16_t color, const Font& font) {
   // check if char does not exist in font array
-  int32_t pos = findChar(c, font);
+  int16_t pos = findChar(c, font);
   if (pos == -1) {
     // return portion of font width if char is a space
     if (c == ' ') return ceil(font.WIDTH * W_SPACE);
@@ -46,8 +46,8 @@ size_t drawCharFB(int16_t x, int16_t y, const char c, uint16_t color, const Font
   uint16_t height = font.chars[pos + H_OFFSET];
 
   pos += C_OFFSET;
-  for (size_t c_y = 0; c_y < height; c_y++) {
-    for (size_t c_x = 0; c_x < width; c_x ++) {
+  for (uint16_t c_y = 0; c_y < height; c_y++) {
+    for (uint16_t c_x = 0; c_x < width; c_x ++) {
       if (font.chars[pos] & (MASK << (W_UINT16 - (c_x + 1)))) {
         drawPixelFB(x + c_x, y + c_y, color);
       }
@@ -65,10 +65,10 @@ void drawWordFB(int16_t x, int16_t y, const char* text, uint16_t color, const Fo
   const uint8_t MARGIN = std::ceil(CHAR_W * W_MARGIN);
 
   uint16_t text_x = x;
-  size_t last_w;
-  size_t len = strlen(text);
+  uint16_t last_w;
+  uint16_t len = strlen(text);
 
-  for (size_t i = 0; i < len; i++) {
+  for (uint16_t i = 0; i < len; i++) {
     if (text_x + CHAR_W + MARGIN >= TFT_WIDTH) {
       text_x = x;
       y += CHAR_H + MARGIN;
@@ -79,4 +79,29 @@ void drawWordFB(int16_t x, int16_t y, const char* text, uint16_t color, const Fo
     last_w = drawCharFB(text_x, y, text[i], color, font);
     text_x += last_w + MARGIN;
   }
+}
+
+uint16_t getWordLength(const char* text, const Font& font) {
+  uint16_t len = strlen(text);
+  uint16_t offset = 1;
+  int32_t pos;
+  uint16_t length = 0;
+
+  const uint8_t CHAR_W = font.WIDTH;
+  const uint8_t MARGIN = std::ceil(CHAR_W * W_MARGIN);
+  
+  for (uint16_t i = 0; i < len; i++) {
+    pos = findChar(text[i], font);
+    if (text[i] == ' ') {
+      length += font.WIDTH;
+    } else if (pos >= 0) {
+      // Add character widths
+      length += font.chars[pos + offset];
+
+      // Account for spaces
+      if (i) length += MARGIN;
+    }
+  }
+
+  return length;
 }

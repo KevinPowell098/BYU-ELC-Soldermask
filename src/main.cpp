@@ -20,10 +20,7 @@
 
 #include "lcd.h"
 #include "fonts.h"
-#include "font_stan7.h"
-#include "font_stan9.h"
-#include "font_stan12.h"
-#include "font_stan16.h"
+#include "menu.h"
 
 // Flexible pin config
 #define TFT_MOSI 11
@@ -62,45 +59,64 @@ Adafruit_HX8357 tft = Adafruit_HX8357(&spiTFT, TFT_CS, TFT_DC, TFT_RST);
 // For the one we're using, its 300 ohms across the X plate
 TouchScreen ts = TouchScreen(NEW_XP, NEW_YP, NEW_XM, NEW_YM, 300);
 
-// Size of the color selection boxes and the paintbrush size
-#define BOXSIZE 40
-#define PENRADIUS 3
-int oldcolor, currentcolor;
+bool updateScreen = true;
+enum pages {one, two, three, four};
+pages activePage = four;
+uint16_t activeTab = static_cast<int>(activePage);
 
 void setup() {
-  Serial.println("DEBUG - Entering setup()");
-
   Serial.begin(115200);
   delay(500);
 
   spiTFT.begin(TFT_SCLK, TFT_MISO, TFT_MOSI, TFT_CS);
 
-  tft.begin(); // Don't use 'if (!tft.begin())'
-  Serial.println("HX8357 init OK");
+  tft.begin();
 
   tft.setRotation(0);
   tft.fillScreen(HX8357_BLACK);
-
-  Serial.println("DEBUG - Leaving setup()");
 }
 
-void loop()
-{
-  static int x = 0;
+void loop() {
+  // // for testing
+  // static uint64_t i = 0;
+  // i += 1;
+  // if (i == 10000000) {
+  //   if (activePage == one)   activePage = two;
+  //   else if (activePage == two)   activePage = three;
+  //   else if (activePage == three) activePage = four;
+  //   else if (activePage == four)  activePage = one;
+  //   updateScreen = true;
+  //   i = 0;
+  // };
 
-  initFramebuffer();
-  fillScreenFB(0x000);
+  if (updateScreen) {
+    initFramebuffer();
 
-  x = (x + 5) % 200;
+    switch (activePage) {
+      case one:
+        activeTab = 0;
+        drawBG(activeTab);
+        break;
+      
+      case two:
+        activeTab = 1;
+        drawBG(activeTab);
+        break;
 
-  // Draw a red pixel into the buffer
-  drawRectFB(x, 0, BOXSIZE, BOXSIZE, 0x5AFF);
+      case three:
+        activeTab = 2;
+        drawBG(activeTab);
+        break;
 
-  drawWordFB(10, 50, "ABC", 0xFFFF, FONT_STAN16);
-  drawWordFB(10, 80, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 0xFFFF, FONT_STAN12);
-  drawWordFB(10, 130, "Hi there, Kevin!", 0xFFFF, FONT_STAN9);
-  drawWordFB(10, 150, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 0xFFFF, FONT_STAN7);
+      case four:
+        activeTab = 3;
+        drawBG(activeTab);
+        drawSetup();
+        break;
+    }
 
-  // Push buffer to screen
-  pushFramebuffer(tft);
+    // Push buffer to screen
+    pushFramebuffer(tft);
+    updateScreen = false;
+  }
 }
