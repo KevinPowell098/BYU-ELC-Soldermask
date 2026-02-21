@@ -10,14 +10,6 @@ void initFramebuffer() {
   memset(framebuffer, 0, TFT_WIDTH * TFT_HEIGHT * sizeof(uint16_t));
 }
 
-uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
-  r = r & 0b11111;
-  g = g & 0b111111;
-  b = b & 0b11111;
-
-  return r << 11 | g << 5 | b;
-}
-
 uint16_t getColorFromGradient(const uint16_t* colors, size_t color_cnt, uint16_t place) {
 
     if (color_cnt == 0) return 0;

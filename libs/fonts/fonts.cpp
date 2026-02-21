@@ -15,7 +15,7 @@
 
 
 // function to return start position of a letter, -1 if not found
-int16_t findChar(const char c, const Font& font) {
+int32_t findChar(const char c, const Font& font) {
   // iterate through every letter in the font
   for (int16_t i = 0; i < font.length;) {
     // return position of char if found 

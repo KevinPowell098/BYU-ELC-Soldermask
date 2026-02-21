@@ -18,9 +18,9 @@
 #include "Adafruit_HX8357.h"
 #include "TouchScreen.h"
 
-#include "lcd.h"
-#include "fonts.h"
-#include "menu.h"
+#include "lcd/lcd.h"
+#include "fonts/fonts.h"
+#include "menu/menu.h"
 
 // Flexible pin config
 #define TFT_MOSI 11

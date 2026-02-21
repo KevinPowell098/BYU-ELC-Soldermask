@@ -12,7 +12,6 @@ extern uint16_t* framebuffer;   // pointer to the buffer
 
 void initFramebuffer();
 
-uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
 uint16_t getColorFromGradient(const uint16_t* colors, size_t color_cnt, uint16_t place);
 
 void drawPixelFB(uint16_t x, uint16_t y, uint16_t color);
@@ -26,5 +25,11 @@ void drawGradRectFB(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t r, 
 void fillScreenFB(uint16_t color);
 
 void pushFramebuffer(Adafruit_HX8357& tft);
+
+constexpr uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
+  return ((r & 0x1F) << 11) |
+         ((g & 0x3F) << 5)  |
+         (b & 0x1F);
+}
 
 #endif
