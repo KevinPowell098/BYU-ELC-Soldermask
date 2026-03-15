@@ -11,3 +11,4 @@
 void drawSetup();
 void drawTempScaleSelection();
 void drawVolumeSelection();
+void drawTempCutoffSelection();

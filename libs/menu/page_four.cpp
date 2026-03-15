@@ -1,14 +1,13 @@
 #include "page_four.h"
+#include "helpers/helpers.h"
 
 void drawSetup() {
   drawTempScaleSelection();
   drawVolumeSelection();
+  drawTempCutoffSelection();
 }
 
 void drawTempScaleSelection() {
-  // Update to use global variable !!!!!
-  bool isTempF = false;
-
   const char* text = "Temperature Scale";
   uint16_t title_y = 55;
 
@@ -30,7 +29,7 @@ void drawTempScaleSelection() {
   uint16_t* c_colors = selection_grad;
   uint16_t* f_colors = box_grad;
 
-  if (isTempF) {
+  if (sysIsTempF) {
     f_colors = selection_grad;
     c_colors = box_grad;
     shadow_x = box2_x;
@@ -51,7 +50,7 @@ void drawTempScaleSelection() {
   uint16_t label_c_x = (TEXT_PADDING * 2) + (box_w * 1.5) - label_offset;
   uint16_t label_y = 107;
 
-  if (isTempF) {
+  if (sysIsTempF) {
     drawWordFB(label_f_x, label_y + FONT_OFFSET, text_f, g_border2, FONT_STAN16);
   } else {
     drawWordFB(label_c_x, label_y + FONT_OFFSET, text_c, g_border2, FONT_STAN16);
@@ -62,16 +61,14 @@ void drawTempScaleSelection() {
 }
 
 void drawVolumeSelection() {
-  // Update to use global variable !!!!!
   // volume ranges from 0-10
-  uint16_t volume = 9;
 
   // Create volume text from variable
-  if (volume > 10) volume = 10;
+  if (sysVolume > 10) sysVolume = 10;
   char text_v[64];
   uint16_t len = 0;
-  const char* append = volume ? "0%%" : "%%";
-  len += snprintf(text_v + len, sizeof(text_v) - len, "%d", volume);
+  const char* append = sysVolume ? "0%%" : "%%";
+  len += snprintf(text_v + len, sizeof(text_v) - len, "%d", sysVolume);
   len += snprintf(text_v + len, sizeof(text_v) - len, append);
 
   const char* text = "System Volume";
@@ -90,11 +87,10 @@ void drawVolumeSelection() {
   uint16_t bar_x = bar_offset;
   uint16_t bar_w = TFT_WIDTH - 2 * bar_offset;
   uint16_t button2_x = bar_x + bar_w + button_pad;
-  uint16_t volume_w = volume * bar_w / 10.0;
+  uint16_t volume_w = sysVolume * bar_w / 10.0;
 
   // colors
   uint16_t bar_color[] = {color565(3,16,3), color565(5,20,5)};
-  // uint16_t symbol_c[] = {g_font, g_font};
   uint16_t symbol_c[] = {color565(18,40,18), color565(18,40,18)};
   uint16_t max_bg[] = {color565(6,22,1), color565(8,26,3)};
   uint16_t shadow_c[] = {g_border2, g_border2};
@@ -103,10 +99,10 @@ void drawVolumeSelection() {
   uint16_t* minus_bg;
   uint16_t* plus_bg;
 
-  if (!volume) {
+  if (!sysVolume) {
     minus_bg = g_bg_grad;
     plus_bg = max_bg;
-  } else if (volume == 10) {
+  } else if (sysVolume == 10) {
     minus_bg = max_bg;
     plus_bg = g_bg_grad; 
   } else {
@@ -138,7 +134,7 @@ void drawVolumeSelection() {
 
   // percentage bar
   drawGradRectFB(bar_x, bar_y, bar_w, bar_h, bar_r, bar_color, 2);
-  if (volume) {
+  if (sysVolume) {
     // primary volume bar
     drawGradRectFB(bar_x, bar_y, volume_w, bar_h, bar_r, volume_color, 2);
 
@@ -147,23 +143,23 @@ void drawVolumeSelection() {
     bar_x += rect_offset;
     volume_w -= rect_offset;
 
-    if (volume >= 6) {
+    if (sysVolume >= 6) {
       bar_r = 3;
     } else {
       bar_r = 0;
     }
 
-    if (volume < 10) {
+    if (sysVolume < 10) {
       // square volume bar overlay
       drawGradRectFB(bar_x, bar_y, volume_w, bar_h, bar_r, volume_color, 2);
     }
   }
 
   // volume buttons shadow
-  if (volume) {
+  if (sysVolume) {
     drawGradRectFB(TEXT_PADDING, shadow_y + SHADOW_OFFSET, shadow_h, shadow_h, shadow_r, shadow_c, 2);
   }
-  if (volume != 10) {
+  if (sysVolume != 10) {
     drawGradRectFB(button2_x, shadow_y + SHADOW_OFFSET, shadow_h, shadow_h, shadow_r, shadow_c, 2);
   }
 
@@ -181,4 +177,102 @@ void drawVolumeSelection() {
   // plus symbol
   drawGradRectFB(plus1_x, plus1_y - 1, symbol_h, symbol_w, symbol_r, symbol_c, 2);
   drawGradRectFB(plus2_x, plus2_y - 1, symbol_w, symbol_h, symbol_r, symbol_c, 2);
+}
+
+void drawTempCutoffSelection() {
+  const char* text = "Temperature Cutoff";
+  uint16_t title_y = 252;
+  uint16_t p_y = 280;
+  uint16_t p_h = 36;
+  uint16_t p_w = p_h;
+  uint16_t p_r = 4;
+  uint16_t p_p = 20;
+  uint16_t p_col[] = {color565(22,57,22), color565(19,51,19)};
+  uint16_t p_grey[] = {color565(18,49,18), color565(15,43,15)};
+  uint16_t shadow_c[] = {g_border2, g_border2};
+
+  uint16_t r_p = 25;
+  uint16_t r_r = 3;
+  uint16_t r_o = 2;
+  uint16_t r_color[] = {color565(5,24,5), color565(7,28,7)};
+
+  // Clamp temperature cutoff
+  if (sysCutoffTempF > CUTOFF_TEMP_F_MAX) {
+    sysCutoffTempF = CUTOFF_TEMP_F_MAX;
+  }
+  if (sysCutoffTempF < CUTOFF_TEMP_F_MIN) {
+    sysCutoffTempF = CUTOFF_TEMP_F_MIN;
+  }
+  sysCutoffTempC = roundToNearest(getTempCFromF(sysCutoffTempF), CUTOFF_TEMP_C_STEP);
+
+  // Create temp text from variable
+  char w_text[64];
+  uint16_t len = 0;
+  const char* append = sysIsTempF ? " ^F" : " ^C";
+  int16_t temp = sysIsTempF ? sysCutoffTempF : sysCutoffTempC;
+  len += snprintf(w_text + len, sizeof(w_text) - len, "%d", temp);
+  len += snprintf(w_text + len, sizeof(w_text) - len, append);
+
+  uint16_t w_x = (TFT_WIDTH - getWordLength(w_text, FONT_STAN16))/2;
+  uint16_t w_o = 2;
+
+  drawWordFB(TEXT_PADDING, title_y + FONT_OFFSET, text, g_border2, FONT_STAN16);
+  drawWordFB(TEXT_PADDING, title_y, text, g_font, FONT_STAN16);
+
+  // left arrow shadow
+  if (sysCutoffTempF > CUTOFF_TEMP_F_MIN) {
+    drawThreePointTriangleFB(
+      TEXT_PADDING + p_p, p_y + p_h/2 + SHADOW_OFFSET, 
+      TEXT_PADDING + p_p + p_w, p_y + SHADOW_OFFSET, 
+      TEXT_PADDING + p_p + p_w, p_y + p_h + SHADOW_OFFSET, 
+      p_r, shadow_c, 2
+    );
+  }
+
+  // right arrow shadow
+  if (sysCutoffTempF < CUTOFF_TEMP_F_MAX) {
+    drawThreePointTriangleFB(
+      TFT_WIDTH - TEXT_PADDING - p_p, p_y + p_h/2 + SHADOW_OFFSET, 
+      TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y + SHADOW_OFFSET, 
+      TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y + p_h + SHADOW_OFFSET, 
+      p_r, shadow_c, 2
+    );
+  }
+
+  // left arrow
+  drawThreePointTriangleFB(
+    TEXT_PADDING + p_p, p_y + p_h/2, 
+    TEXT_PADDING + p_p + p_w, p_y, 
+    TEXT_PADDING + p_p + p_w, p_y + p_h, 
+    p_r, 
+    (sysCutoffTempF > CUTOFF_TEMP_F_MIN) ? p_col : p_grey, 2
+  );
+
+  // right arrow
+  drawThreePointTriangleFB(
+    TFT_WIDTH - TEXT_PADDING - p_p, p_y + p_h/2, 
+    TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y, 
+    TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y + p_h, 
+    p_r, 
+    (sysCutoffTempF < CUTOFF_TEMP_F_MAX) ? p_col : p_grey, 2
+  );
+
+  // background rectangle
+  drawGradRectFB(
+    TEXT_PADDING + p_p + p_w + r_p, p_y + r_o,
+    TFT_WIDTH - 2 * (TEXT_PADDING + p_p + p_w + r_p), p_h - 2 * r_o,
+    r_r, r_color, 2
+  );
+
+  // temperature text shadow
+  drawWordFB(
+    w_x, p_y + p_h/2 - FONT_STAN16.HEIGHT/2 + w_o, 
+    w_text, g_border2, FONT_STAN16
+  );
+
+  // temperature text
+  drawWordFB(
+    w_x, p_y + p_h/2 - FONT_STAN16.HEIGHT/2, 
+    w_text, g_font, FONT_STAN16
+  );
 }

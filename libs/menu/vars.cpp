@@ -1,21 +1,6 @@
 #include "vars.h"
 #include "lcd/lcd.h"
-
-// Page layout constants
-const int SELECTION_H = 45;
-const int SELECTION_R = 10;
-const int GLOW_OFFSET = 1;
-const int BORDER_OFFSET = 1;
-const int OPTION_H = 30;
-const int OPTION_R = 7;
-const int OPTION_WIEGHT = 3;
-const int TAB_SHADOW_OFFSET = 10;
-const int SHADOW_OFFSET = 2;
-const int SELECTION_SHADOW_OFFSET = 5;
-const int SHADOW_R = 12;
-const int SHADOW_W = 6;
-const int FONT_OFFSET = 1;
-const int TEXT_PADDING = 12;
+#include "helpers/helpers.h"
 
 // Tab outline colors
 uint16_t r_outline = color565(31, 0, 0);
@@ -86,3 +71,9 @@ uint16_t r_border2 = color565(15, 10, 10);
 uint16_t y_border2 = color565(15, 25, 10);
 uint16_t b_border2 = color565(10, 10, 15);
 uint16_t g_border2 = color565(6, 20, 6);
+
+// Program variables
+bool     sysIsTempF = false;
+uint16_t sysVolume = 9;
+int16_t  sysCutoffTempF = 300;
+int16_t  sysCutoffTempC = roundToNearest(getTempCFromF(sysCutoffTempF), CUTOFF_TEMP_C_STEP);

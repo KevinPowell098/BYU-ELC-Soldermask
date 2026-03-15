@@ -1,20 +1,26 @@
 #include <cstdint>
 
 // Page layout constants
-extern const int SELECTION_H;
-extern const int SELECTION_R;
-extern const int GLOW_OFFSET;
-extern const int BORDER_OFFSET;
-extern const int OPTION_H;
-extern const int OPTION_R;
-extern const int OPTION_WIEGHT;
-extern const int TAB_SHADOW_OFFSET;
-extern const int SHADOW_OFFSET;
-extern const int SELECTION_SHADOW_OFFSET;
-extern const int SHADOW_R;
-extern const int SHADOW_W;
-extern const int FONT_OFFSET;
-extern const int TEXT_PADDING;
+#define SELECTION_H       45
+#define SELECTION_R       10
+#define GLOW_OFFSET       1
+#define BORDER_OFFSET     1
+#define OPTION_H          30
+#define OPTION_R          7
+#define OPTION_WIEGHT     3
+#define TAB_SHADOW_OFFSET 10
+#define SHADOW_R          12
+#define SHADOW_W          6
+#define FONT_OFFSET       1
+#define TEXT_PADDING      12
+#define SHADOW_OFFSET     2
+#define SELECTION_SHADOW_OFFSET  5
+
+// High Temperature Cutoff Range
+#define CUTOFF_TEMP_F_MAX  400
+#define CUTOFF_TEMP_F_MIN  100
+#define CUTOFF_TEMP_F_STEP 10
+#define CUTOFF_TEMP_C_STEP 5
 
 // Tab outline colors
 extern uint16_t r_outline;
@@ -75,3 +81,9 @@ extern uint16_t r_border2;
 extern uint16_t y_border2;
 extern uint16_t b_border2;
 extern uint16_t g_border2;
+
+// Program variables
+extern bool     sysIsTempF;
+extern uint16_t sysVolume;
+extern int16_t  sysCutoffTempF;
+extern int16_t  sysCutoffTempC;

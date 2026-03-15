@@ -21,6 +21,7 @@
 #include "lcd/lcd.h"
 #include "fonts/fonts.h"
 #include "menu/menu.h"
+// #include "touch/touch.h"
 
 // Flexible pin config
 #define TFT_MOSI 11
