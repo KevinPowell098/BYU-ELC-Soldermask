@@ -16,12 +16,12 @@
 #include <SPI.h>
 #include "Adafruit_GFX.h"
 #include "Adafruit_HX8357.h"
-#include "TouchScreen.h"
 
 #include "lcd/lcd.h"
 #include "fonts/fonts.h"
 #include "menu/menu.h"
-// #include "touch/touch.h"
+#include "touch/touch.h"
+#include "menu/vars.h"
 
 // Flexible pin config
 #define TFT_MOSI 11
@@ -31,39 +31,13 @@
 #define TFT_DC    9
 #define TFT_RST  -1  // Use -1 if reset is not connected
 
-// These are the four touchscreen analog pins
-#define YP 4   // must be an analog pin, use "An" notation!
-#define XP 5   // must be an analog pin, use "An" notation!
-#define YM 6   // can be a digital pin
-#define XM 7   // can be a digital pin
-
-// The pin assignments are weird, so this is to correct them so that the wiring can be clean
-#define NEW_YP XM
-#define NEW_XP YP
-#define NEW_YM XP
-#define NEW_XM YM
-
-// This is calibration data for the raw touch data to the screen coordinates
-#define TS_MINX -2600
-#define TS_MINY -2400
-#define TS_MAXX 660
-#define TS_MAXY 420
-
 // Create a custom SPI bus
 SPIClass spiTFT(FSPI);  // Or VSPI — just avoid overlap with other peripherals
 
 // Pass the custom SPI bus to the display driver
 Adafruit_HX8357 tft = Adafruit_HX8357(&spiTFT, TFT_CS, TFT_DC, TFT_RST);
 
-// For better pressure precision, we need to know the resistance
-// between X+ and X- Use any multimeter to read it
-// For the one we're using, its 300 ohms across the X plate
-TouchScreen ts = TouchScreen(NEW_XP, NEW_YP, NEW_XM, NEW_YM, 300);
-
 bool updateScreen = true;
-enum pages {one, two, three, four};
-pages activePage = four;
-uint16_t activeTab = static_cast<int>(activePage);
 
 void setup() {
   Serial.begin(115200);
@@ -82,35 +56,37 @@ void loop() {
   // static uint64_t i = 0;
   // i += 1;
   // if (i == 10000000) {
-  //   if (activePage == one)   activePage = two;
-  //   else if (activePage == two)   activePage = three;
-  //   else if (activePage == three) activePage = four;
-  //   else if (activePage == four)  activePage = one;
+  //   if (activeTab == PAGE_ONE)   activeTab = PAGE_TWO;
+  //   else if (activeTab == PAGE_TWO)   activeTab = PAGE_THREE;
+  //   else if (activeTab == PAGE_THREE) activeTab = PAGE_FOUR;
+  //   else if (activeTab == PAGE_FOUR)  activeTab = PAGE_ONE;
   //   updateScreen = true;
   //   i = 0;
   // };
 
+  // test for touch input every loop, 
+  // redraw screen if touch detected inside object
+  updateScreen = !senseTouch();
+
+  // Serial.println("line printed");
+
   if (updateScreen) {
     initFramebuffer();
 
-    switch (activePage) {
-      case one:
-        activeTab = 0;
+    switch (activeTab) {
+      case PAGE_ONE:
         drawBG(activeTab);
         break;
       
-      case two:
-        activeTab = 1;
+      case PAGE_TWO:
         drawBG(activeTab);
         break;
 
-      case three:
-        activeTab = 2;
+      case PAGE_THREE:
         drawBG(activeTab);
         break;
 
-      case four:
-        activeTab = 3;
+      case PAGE_FOUR:
         drawBG(activeTab);
         drawSetup();
         break;

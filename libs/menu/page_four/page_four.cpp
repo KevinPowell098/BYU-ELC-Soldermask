@@ -1,10 +1,12 @@
 #include "page_four.h"
 #include "helpers/helpers.h"
+#include "page_four_helpers.h"
 
 void drawSetup() {
   drawTempScaleSelection();
   drawVolumeSelection();
   drawTempCutoffSelection();
+  drawResetButton();
 }
 
 void drawTempScaleSelection() {
@@ -37,8 +39,12 @@ void drawTempScaleSelection() {
 
   drawRectOutlineFB(shadow_x, box_y + 2, box_w, box_h, box_r, line_w, g_border2);
   
-  drawGradRectFB(TEXT_PADDING, box_y, box_w, box_h, box_r, f_colors, 2);
-  drawGradRectFB(box2_x, box_y, box_w, box_h, box_r, c_colors, 2);
+  Box b_scale_f = drawGradRectFB(TEXT_PADDING, box_y, box_w, box_h, box_r, f_colors, 2);
+  Box b_scale_c = drawGradRectFB(box2_x, box_y, box_w, box_h, box_r, c_colors, 2);
+
+  // Add buttons to touch screen sensing
+  AddBoxToArray(b_scale_c, TempScaleSelection_SetToC, CURRENT_PAGE);
+  AddBoxToArray(b_scale_f, TempScaleSelection_SetToF, CURRENT_PAGE);
 
   drawRectOutlineFB(TEXT_PADDING, box_y, box_w, box_h, box_r, line_w, g_font);
   drawRectOutlineFB(box2_x, box_y, box_w, box_h, box_r, line_w, g_font);
@@ -64,7 +70,7 @@ void drawVolumeSelection() {
   // volume ranges from 0-10
 
   // Create volume text from variable
-  if (sysVolume > 10) sysVolume = 10;
+  if (sysVolume > SYS_VOLUME_MAX) sysVolume = SYS_VOLUME_MAX;
   char text_v[64];
   uint16_t len = 0;
   const char* append = sysVolume ? "0%%" : "%%";
@@ -87,7 +93,7 @@ void drawVolumeSelection() {
   uint16_t bar_x = bar_offset;
   uint16_t bar_w = TFT_WIDTH - 2 * bar_offset;
   uint16_t button2_x = bar_x + bar_w + button_pad;
-  uint16_t volume_w = sysVolume * bar_w / 10.0;
+  uint16_t volume_w = sysVolume * bar_w / SYS_VOLUME_MAX;
 
   // colors
   uint16_t bar_color[] = {color565(3,16,3), color565(5,20,5)};
@@ -102,7 +108,7 @@ void drawVolumeSelection() {
   if (!sysVolume) {
     minus_bg = g_bg_grad;
     plus_bg = max_bg;
-  } else if (sysVolume == 10) {
+  } else if (sysVolume == SYS_VOLUME_MAX) {
     minus_bg = max_bg;
     plus_bg = g_bg_grad; 
   } else {
@@ -149,7 +155,7 @@ void drawVolumeSelection() {
       bar_r = 0;
     }
 
-    if (sysVolume < 10) {
+    if (sysVolume < SYS_VOLUME_MAX) {
       // square volume bar overlay
       drawGradRectFB(bar_x, bar_y, volume_w, bar_h, bar_r, volume_color, 2);
     }
@@ -159,7 +165,7 @@ void drawVolumeSelection() {
   if (sysVolume) {
     drawGradRectFB(TEXT_PADDING, shadow_y + SHADOW_OFFSET, shadow_h, shadow_h, shadow_r, shadow_c, 2);
   }
-  if (sysVolume != 10) {
+  if (sysVolume != SYS_VOLUME_MAX) {
     drawGradRectFB(button2_x, shadow_y + SHADOW_OFFSET, shadow_h, shadow_h, shadow_r, shadow_c, 2);
   }
 
@@ -168,8 +174,12 @@ void drawVolumeSelection() {
   drawGradRectFB(button2_x, shadow_y, bar_h, bar_h, button_r, minus_bg, 2);
 
   // volume buttons outline
-  drawRectOutlineFB(TEXT_PADDING, shadow_y, bar_h, bar_h, button_r, button_w, button_c);
-  drawRectOutlineFB(button2_x, shadow_y, bar_h, bar_h, button_r, button_w, button_c);
+  Box b_volume_minus = drawRectOutlineFB(TEXT_PADDING, shadow_y, bar_h, bar_h, button_r, button_w, button_c);
+  Box b_volume_plus  = drawRectOutlineFB(button2_x, shadow_y, bar_h, bar_h, button_r, button_w, button_c);
+
+  // add to touch sensing
+  AddBoxToArray(b_volume_minus, VolumeSelection_VolumeMinus, CURRENT_PAGE);
+  AddBoxToArray(b_volume_plus, VolumeSelection_VolumePlus, CURRENT_PAGE);
 
   // minus symbol
   drawGradRectFB(minus_x, plus1_y - 1, symbol_h, symbol_w, symbol_r, symbol_c, 2);
@@ -240,7 +250,7 @@ void drawTempCutoffSelection() {
   }
 
   // left arrow
-  drawThreePointTriangleFB(
+  Box b_cutoff_minus = drawThreePointTriangleFB(
     TEXT_PADDING + p_p, p_y + p_h/2, 
     TEXT_PADDING + p_p + p_w, p_y, 
     TEXT_PADDING + p_p + p_w, p_y + p_h, 
@@ -249,13 +259,16 @@ void drawTempCutoffSelection() {
   );
 
   // right arrow
-  drawThreePointTriangleFB(
+  Box b_cutoff_plus = drawThreePointTriangleFB(
     TFT_WIDTH - TEXT_PADDING - p_p, p_y + p_h/2, 
     TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y, 
     TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y + p_h, 
     p_r, 
     (sysCutoffTempF < CUTOFF_TEMP_F_MAX) ? p_col : p_grey, 2
   );
+
+  AddBoxToArray(b_cutoff_minus, TempCutoffSelection_CutoffMinus, CURRENT_PAGE);
+  AddBoxToArray(b_cutoff_plus, TempCutoffSelection_CutoffPlus, CURRENT_PAGE);
 
   // background rectangle
   drawGradRectFB(
@@ -275,4 +288,12 @@ void drawTempCutoffSelection() {
     w_x, p_y + p_h/2 - FONT_STAN16.HEIGHT/2, 
     w_text, g_font, FONT_STAN16
   );
+}
+
+void drawResetConfirmation() {
+  // If confirmed, set all values to defaults
+}
+
+void drawResetButton() {
+  // If clicked call drawResetConfirmation()
 }

@@ -20,8 +20,10 @@ class Box {
     int16_t y2;
 
   public:
-    // page number 0-3 to represent menu page
+    // page number 0-3 to represent menu pages, -1 to represent global
     int16_t page;
+    // bool value to track whether element is 'active' or selectable
+    bool isSelectable;
 
     void (*operation)();   // function pointer
 
@@ -35,6 +37,7 @@ class Box {
 
       page = -1;
       operation = nullptr;
+      isSelectable = true;
     }
 
     // update class members safely

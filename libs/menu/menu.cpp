@@ -1,5 +1,19 @@
 #include "menu.h"
 
+// Functions to change tabs
+void tabOnePressed()   { activeTab = PAGE_ONE; }
+void tabTwoPressed()   { activeTab = PAGE_TWO; }
+void tabThreePressed() { activeTab = PAGE_THREE; }
+void tabFourPressed()  { activeTab = PAGE_FOUR; }
+
+// Create array of function pointers to assign to tabs easily
+typedef void (*VoidFuncNoParameter) ();
+VoidFuncNoParameter tabChangeFunctions[] = {
+  tabOnePressed,
+  tabTwoPressed,
+  tabThreePressed,
+  tabFourPressed
+};
 
 void drawBG(uint16_t activeTab) {
   fillScreenFB(bgs[activeTab]);
@@ -73,30 +87,35 @@ void drawOutline(uint16_t activeTab) {
 
   // Draw background tab outlines
   for (int i = 0; i < 3; i++) {
-    drawRectOutlineFB(tab_order[activeTab][i] * TFT_WIDTH / 4, TFT_HEIGHT - OPTION_H, 
+    Box b(
+      drawRectOutlineFB(tab_order[activeTab][i] * TFT_WIDTH / 4, 
+                      TFT_HEIGHT - OPTION_H, 
                       TFT_WIDTH / 4, OPTION_H * 2, 
-                      OPTION_R, OPTION_WIEGHT, 
+                      OPTION_R, OPTION_WEIGHT, 
                       outlines[tab_order[activeTab][i]]
-                    );
+                    )
+    );
+
+    AddBoxToArray(b, tabChangeFunctions[i], -1);
   }
 
   // Draw active tab dark border
   drawRectOutlineFB(activeTab * TFT_WIDTH / 4 - BORDER_OFFSET, TFT_HEIGHT - SELECTION_H, 
                     TFT_WIDTH / 4 + (2 * BORDER_OFFSET), SELECTION_H * 2, 
-                    SELECTION_R, OPTION_WIEGHT, 
+                    SELECTION_R, OPTION_WEIGHT, 
                     borders[activeTab]
                   );
 
   // Draw active tab glow
   drawRectOutlineFB(activeTab * TFT_WIDTH / 4, TFT_HEIGHT - SELECTION_H - GLOW_OFFSET, 
                     TFT_WIDTH / 4, SELECTION_H * 2, 
-                    SELECTION_R, OPTION_WIEGHT, 
+                    SELECTION_R, OPTION_WEIGHT, 
                     glows[activeTab]
                   );
 
   drawRectOutlineFB(activeTab * TFT_WIDTH / 4, TFT_HEIGHT - SELECTION_H, 
                     TFT_WIDTH / 4, SELECTION_H * 2, 
-                    SELECTION_R, OPTION_WIEGHT, 
+                    SELECTION_R, OPTION_WEIGHT, 
                     outlines[activeTab]
                   );
 }

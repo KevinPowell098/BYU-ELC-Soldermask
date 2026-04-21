@@ -1,9 +1,13 @@
 #include "lcd/lcd.h"
+#include "menu/vars.h"
 
 #define MAX_BOXES 100
 
-Box boxes[MAX_BOXES];
-uint16_t boxCount = 0;
+extern Box boxes[MAX_BOXES];
+extern uint16_t boxCount;
 
-void AddBox(Box b);
-void AddBox(Box b, void (*func)(), int16_t page);
+void AddBoxToArray(Box b);
+void AddBoxToArray(Box b, void (*func)(), int16_t page);
+
+bool selectElement(int16_t x, int16_t y);
+bool senseTouch();

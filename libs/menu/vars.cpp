@@ -2,6 +2,9 @@
 #include "lcd/lcd.h"
 #include "helpers/helpers.h"
 
+// Current menu tab variables
+uint16_t activeTab = PAGE_FOUR;
+
 // Tab outline colors
 uint16_t r_outline = color565(31, 0, 0);
 uint16_t y_outline = color565(30, 50, 0);

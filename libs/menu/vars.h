@@ -1,4 +1,13 @@
+#ifndef VARS_H
+#define VARS_H
+
 #include <cstdint>
+
+// Page numbering constants
+#define PAGE_ONE   0
+#define PAGE_TWO   1
+#define PAGE_THREE 2
+#define PAGE_FOUR  3
 
 // Page layout constants
 #define SELECTION_H       45
@@ -7,7 +16,7 @@
 #define BORDER_OFFSET     1
 #define OPTION_H          30
 #define OPTION_R          7
-#define OPTION_WIEGHT     3
+#define OPTION_WEIGHT     3
 #define TAB_SHADOW_OFFSET 10
 #define SHADOW_R          12
 #define SHADOW_W          6
@@ -21,6 +30,12 @@
 #define CUTOFF_TEMP_F_MIN  100
 #define CUTOFF_TEMP_F_STEP 10
 #define CUTOFF_TEMP_C_STEP 5
+
+// Volume Max
+#define SYS_VOLUME_MAX 10
+
+// Current menu tab
+extern uint16_t activeTab;
 
 // Tab outline colors
 extern uint16_t r_outline;
@@ -87,3 +102,5 @@ extern bool     sysIsTempF;
 extern uint16_t sysVolume;
 extern int16_t  sysCutoffTempF;
 extern int16_t  sysCutoffTempC;
+
+#endif
