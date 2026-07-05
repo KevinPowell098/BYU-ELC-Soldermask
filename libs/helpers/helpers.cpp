@@ -1,5 +1,6 @@
 #include "helpers/helpers.h"
 #include "menu/vars.h"
+#include "menu/menu.h"
 
 int16_t getTempFFromC(int16_t TempC) {
   return ((TempC * 9.0) / 5.0) + 32;
@@ -39,4 +40,14 @@ int16_t max(int16_t n, int16_t m) {
   } else {
     return m;
   }
+}
+
+void initMenu() {
+  initTabBoxes();
+
+  // Init each page
+  drawSetup();
+
+  // Ensure touch elements are not generated again
+  isInit = false;
 }

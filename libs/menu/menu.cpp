@@ -15,16 +15,34 @@ VoidFuncNoParameter tabChangeFunctions[] = {
   tabFourPressed
 };
 
-void drawBG(uint16_t activeTab) {
-  fillScreenFB(bgs[activeTab]);
-  drawShadow(activeTab);
-  drawGradientFill(activeTab);
-  drawOutline(activeTab);
-  drawTabLabels(activeTab);
-  drawTitle(activeTab);
+void initTabBoxes() {
+  // Draw background tab outlines
+  for (int i = 0; i < 4; i++) {
+    Box b(
+      expandBox(
+        drawRectOutlineFB(i * TFT_WIDTH / 4, 
+                        TFT_HEIGHT - OPTION_H, 
+                        TFT_WIDTH / 4, OPTION_H * 2, 
+                        1, 1, outlines[i]
+        ), 
+        40, 0, 40, 10
+      )
+    );
+
+    AddBoxToArray(b, tabChangeFunctions[i], -1);
+  }
 }
 
-void drawGradientFill(uint16_t activeTab) {
+void drawBG() {
+  fillScreenFB(bgs[activeTab]);
+  drawShadow();
+  drawGradientFill();
+  drawOutline();
+  drawTabLabels();
+  drawTitle();
+}
+
+void drawGradientFill() {
   uint16_t h = TFT_HEIGHT - OPTION_H;
   uint16_t tab_h[] = {h, h, h, h};
   uint16_t* colors[] = {r_grad, y_grad, b_grad, g_grad};
@@ -41,7 +59,7 @@ void drawGradientFill(uint16_t activeTab) {
   }
 }
 
-void drawShadow(uint16_t activeTab) {
+void drawShadow() {
   uint16_t* colors = shadows[activeTab];
   uint16_t y = TFT_HEIGHT - OPTION_H - TAB_SHADOW_OFFSET;
   uint16_t h = OPTION_H;
@@ -77,7 +95,7 @@ void drawShadow(uint16_t activeTab) {
   }
 }
 
-void drawOutline(uint16_t activeTab) {
+void drawOutline() {
   uint16_t tab_order[4][4] = {
     {3,2,1,0},
     {3,0,2,1},
@@ -120,7 +138,7 @@ void drawOutline(uint16_t activeTab) {
                   );
 }
 
-void drawTabLabels(uint16_t activeTab) {
+void drawTabLabels() {
   uint16_t start_x[] = {17, 109, 171, 252};
   uint16_t start_x_upper[] = {15, 107, 167, 247};
   const char* labels[] = {"heat", "uv", "other", "setup"};
@@ -160,7 +178,7 @@ void drawTabLabels(uint16_t activeTab) {
   }
 }
 
-void drawTitle(uint16_t activeTab) {
+void drawTitle() {
   uint16_t title_color = font_colors[activeTab];
   uint16_t shadow_color = borders[activeTab];
 

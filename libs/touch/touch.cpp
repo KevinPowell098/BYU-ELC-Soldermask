@@ -1,44 +1,49 @@
 #include "touch.h"
 #include "TouchScreen.h"
 
-// These are the four touchscreen analog pins
-#define YP 16  // must be an analog pin, use "An" notation!
-#define XM 17  // must be an analog pin, use "An" notation!
-#define YM 7   // can be a digital pin
-#define XP 8   // can be a digital pin
+// Touch sensing pins
+#define YP 7   // must be an analog pin, use "An" notation!
+#define XM 4   // must be an analog pin, use "An" notation!
+#define YM 5   // can be a digital pin
+#define XP 6   // can be a digital pin
 
 // This is calibration data for the raw touch data to the screen coordinates
-#define TS_MINX 110
-#define TS_MINY 80
-#define TS_MAXX 900
-#define TS_MAXY 940
+#define TS_MINX -2500
+#define TS_MINY -2500
+#define TS_MAXX -500
+#define TS_MAXY 660
 
-#define MINPRESSURE 10
-#define MAXPRESSURE 1000
+// Gating to reject noise
+#define MIN_X -2800
 
 // The display uses hardware SPI, plus #9 & #10
 #define TFT_RST -1  // dont use a reset pin, tie to arduino RST if you like
 #define TFT_DC 9
 #define TFT_CS 10
 
+
 Box boxes[MAX_BOXES];
 uint16_t boxCount = 0;
 
 void AddBoxToArray(Box b) {
-  if (boxCount < MAX_BOXES) {
-    boxes[boxCount++] = b;
-  } else {
-    // TODO: print error
+  if (isInit) {
+    if (boxCount < MAX_BOXES) {
+      boxes[boxCount++] = b;
+    } else {
+      Serial.println("WARNING: array 'boxes' is full, additional elements cannot be added");
+    }
   }
 }
 
 void AddBoxToArray(Box b, void (*func)(), int16_t page) {
-  if (boxCount < MAX_BOXES) {
-    b.operation = func;
-    b.page = page;
-    boxes[boxCount++] = b;
-  } else {
-    // TODO: print error
+  if (isInit) {
+    if (boxCount < MAX_BOXES) {
+      b.operation = func;
+      b.page = page;
+      boxes[boxCount++] = b;
+    } else {
+      Serial.println("WARNING: array 'boxes' is full, additional elements cannot be added");
+    }
   }
 }
 
@@ -62,38 +67,25 @@ bool selectElement(int16_t x, int16_t y) {
   return isElementTouched;
 }
 
-bool senseTouch() {
+bool isElementTouched() {
   // Retrieve a point 
   TSPoint p = ts.getPoint();
 
-  // we have some minimum pressure we consider 'valid'
-  // pressure of 0 means no pressing!
-  if (p.z < MINPRESSURE || p.z > MAXPRESSURE) {
+  // To be considered a valid press, it must:
+  // 1. have a non-zero pressure
+  // 2. be within reasonable x bounds
+  // False touches usually have p.x of -3070 or -3072
+  if (p.z && p.x > MIN_X) {
+    // Scale from arbitrary range to tft.width using the calibration #'s
+    p.x = map(p.x, TS_MINX, TS_MAXX, 0, TFT_WIDTH);
+    p.y = map(p.y, TS_MINY, TS_MAXY, 0, TFT_HEIGHT);
 
-    /*
-    Serial.print("touch data | pressure: ");
-    Serial.print(p.z);
-    Serial.print(", x: ");
-    Serial.print(p.x);
-    Serial.print(", y: ");
-    Serial.println(p.y);
-    */
+    // Serial.println("press (maybe) detected");
 
-    return false;
+    return selectElement(p.x, p.y);
   }
-  
-  // Scale from ~0->1000 to tft.width using the calibration #'s
-  p.x = map(p.x, TS_MINX, TS_MAXX, 0, TFT_WIDTH);
-  p.y = map(p.y, TS_MINY, TS_MAXY, 0, TFT_HEIGHT);
 
-  // Serial.print("touch sensed at: ");
-  // Serial.print(p.x);
-  // Serial.print(", ");
-  // Serial.println(p.y);
-
-  // returns true if a valid element was touched
-  // so that the screen will be updated
-  return selectElement(p.x, p.y);
+  return false;
 }
 
 

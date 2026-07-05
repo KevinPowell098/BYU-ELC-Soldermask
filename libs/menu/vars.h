@@ -34,6 +34,9 @@
 // Volume Max
 #define SYS_VOLUME_MAX 10
 
+// Used for initialization of touch zones
+extern bool isInit;
+
 // Current menu tab
 extern uint16_t activeTab;
 
@@ -102,5 +105,9 @@ extern bool     sysIsTempF;
 extern uint16_t sysVolume;
 extern int16_t  sysCutoffTempF;
 extern int16_t  sysCutoffTempC;
+
+// Celsius Temp Range
+extern uint16_t CUTOFF_TEMP_C_MAX;
+extern uint16_t CUTOFF_TEMP_C_MIN;
 
 #endif

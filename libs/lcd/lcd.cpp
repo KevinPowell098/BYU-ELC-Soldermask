@@ -521,3 +521,13 @@ void fillScreenFB(uint16_t color) {
 void pushFramebuffer(Adafruit_HX8357& tft) {
     tft.drawRGBBitmap(0, 0, framebuffer, TFT_WIDTH, TFT_HEIGHT);
 }
+
+Box expandBox(Box b, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+  x1 += b._get_x1();
+  y1 += b._get_y1();
+  x2 += b._get_x2();
+  y2 += b._get_y2();
+
+  Box box(x1, y1, x2, y2);
+  return box;
+}

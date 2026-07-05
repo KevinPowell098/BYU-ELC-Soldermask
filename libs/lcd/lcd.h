@@ -122,4 +122,6 @@ Box drawThreePointTriangleFB(uint16_t x1u, uint16_t y1u,
                               uint16_t r_in,
                               uint16_t* colors, size_t color_cnt);
 
+Box expandBox(Box b, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+
 #endif

@@ -17,11 +17,28 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_HX8357.h"
 
+#include "TouchScreen.h"
+
 #include "lcd/lcd.h"
 #include "fonts/fonts.h"
 #include "menu/menu.h"
 #include "touch/touch.h"
 #include "menu/vars.h"
+
+// Touch sensing pins
+#define YP 7   // must be an analog pin, use "An" notation!
+#define XM 4   // must be an analog pin, use "An" notation!
+#define YM 5   // can be a digital pin
+#define XP 6   // can be a digital pin
+
+// This is calibration data for the raw touch data to the screen coordinates
+#define TS_MINX -2500
+#define TS_MINY -2500
+#define TS_MAXX -500
+#define TS_MAXY 660
+
+// Touch sensing gating variables to reject noise
+#define MIN_X -2800
 
 // Flexible pin config
 #define TFT_MOSI 11
@@ -39,6 +56,7 @@ Adafruit_HX8357 tft = Adafruit_HX8357(&spiTFT, TFT_CS, TFT_DC, TFT_RST);
 
 bool updateScreen = true;
 
+
 void setup() {
   Serial.begin(115200);
   delay(500);
@@ -46,9 +64,10 @@ void setup() {
   spiTFT.begin(TFT_SCLK, TFT_MISO, TFT_MOSI, TFT_CS);
 
   tft.begin();
-
   tft.setRotation(0);
-  tft.fillScreen(HX8357_BLACK);
+
+  initFramebuffer();
+  initMenu();
 }
 
 void loop() {
@@ -64,30 +83,24 @@ void loop() {
   //   i = 0;
   // };
 
-  // test for touch input every loop, 
-  // redraw screen if touch detected inside object
-  updateScreen = !senseTouch();
-
-  // Serial.println("line printed");
-
   if (updateScreen) {
     initFramebuffer();
 
     switch (activeTab) {
       case PAGE_ONE:
-        drawBG(activeTab);
+        drawBG();
         break;
       
       case PAGE_TWO:
-        drawBG(activeTab);
+        drawBG();
         break;
 
       case PAGE_THREE:
-        drawBG(activeTab);
+        drawBG();
         break;
 
       case PAGE_FOUR:
-        drawBG(activeTab);
+        drawBG();
         drawSetup();
         break;
     }
@@ -96,4 +109,9 @@ void loop() {
     pushFramebuffer(tft);
     updateScreen = false;
   }
+
+  // test for touch input every loop, 
+  // redraw screen if touch detected inside object
+  updateScreen = isElementTouched();
 }
+

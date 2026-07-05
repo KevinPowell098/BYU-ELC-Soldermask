@@ -39,12 +39,18 @@ void drawTempScaleSelection() {
 
   drawRectOutlineFB(shadow_x, box_y + 2, box_w, box_h, box_r, line_w, g_border2);
   
-  Box b_scale_f = drawGradRectFB(TEXT_PADDING, box_y, box_w, box_h, box_r, f_colors, 2);
-  Box b_scale_c = drawGradRectFB(box2_x, box_y, box_w, box_h, box_r, c_colors, 2);
+  Box b_scale_f = expandBox(
+    drawGradRectFB(TEXT_PADDING, box_y, box_w, box_h, box_r, f_colors, 2), 
+    0, -10, 200, 10
+  );
+  Box b_scale_c = expandBox(
+    drawGradRectFB(box2_x, box_y, box_w, box_h, box_r, c_colors, 2), 
+    50, -10, 100, 10
+  );
 
   // Add buttons to touch screen sensing
-  AddBoxToArray(b_scale_c, TempScaleSelection_SetToC, CURRENT_PAGE);
   AddBoxToArray(b_scale_f, TempScaleSelection_SetToF, CURRENT_PAGE);
+  AddBoxToArray(b_scale_c, TempScaleSelection_SetToC, CURRENT_PAGE);
 
   drawRectOutlineFB(TEXT_PADDING, box_y, box_w, box_h, box_r, line_w, g_font);
   drawRectOutlineFB(box2_x, box_y, box_w, box_h, box_r, line_w, g_font);
@@ -163,10 +169,18 @@ void drawVolumeSelection() {
 
   // volume buttons shadow
   if (sysVolume) {
-    drawGradRectFB(TEXT_PADDING, shadow_y + SHADOW_OFFSET, shadow_h, shadow_h, shadow_r, shadow_c, 2);
+    drawGradRectFB(
+      TEXT_PADDING, shadow_y + SHADOW_OFFSET, 
+      shadow_h, shadow_h, 
+      shadow_r, shadow_c, 2
+    );
   }
   if (sysVolume != SYS_VOLUME_MAX) {
-    drawGradRectFB(button2_x, shadow_y + SHADOW_OFFSET, shadow_h, shadow_h, shadow_r, shadow_c, 2);
+    drawGradRectFB(
+      button2_x, shadow_y + SHADOW_OFFSET, 
+      shadow_h, shadow_h, 
+      shadow_r, shadow_c, 2
+    );
   }
 
   // volume buttons bg
@@ -174,8 +188,14 @@ void drawVolumeSelection() {
   drawGradRectFB(button2_x, shadow_y, bar_h, bar_h, button_r, minus_bg, 2);
 
   // volume buttons outline
-  Box b_volume_minus = drawRectOutlineFB(TEXT_PADDING, shadow_y, bar_h, bar_h, button_r, button_w, button_c);
-  Box b_volume_plus  = drawRectOutlineFB(button2_x, shadow_y, bar_h, bar_h, button_r, button_w, button_c);
+  Box b_volume_minus = expandBox(
+    drawRectOutlineFB(TEXT_PADDING, shadow_y, bar_h, bar_h, button_r, button_w, button_c),
+    0, 0, 10, 10
+  );
+  Box b_volume_plus  = expandBox(
+    drawRectOutlineFB(button2_x, shadow_y, bar_h, bar_h, button_r, button_w, button_c),
+    60, 0, 80, 0
+  );
 
   // add to touch sensing
   AddBoxToArray(b_volume_minus, VolumeSelection_VolumeMinus, CURRENT_PAGE);
@@ -206,15 +226,6 @@ void drawTempCutoffSelection() {
   uint16_t r_o = 2;
   uint16_t r_color[] = {color565(5,24,5), color565(7,28,7)};
 
-  // Clamp temperature cutoff
-  if (sysCutoffTempF > CUTOFF_TEMP_F_MAX) {
-    sysCutoffTempF = CUTOFF_TEMP_F_MAX;
-  }
-  if (sysCutoffTempF < CUTOFF_TEMP_F_MIN) {
-    sysCutoffTempF = CUTOFF_TEMP_F_MIN;
-  }
-  sysCutoffTempC = roundToNearest(getTempCFromF(sysCutoffTempF), CUTOFF_TEMP_C_STEP);
-
   // Create temp text from variable
   char w_text[64];
   uint16_t len = 0;
@@ -229,8 +240,12 @@ void drawTempCutoffSelection() {
   drawWordFB(TEXT_PADDING, title_y + FONT_OFFSET, text, g_border2, FONT_STAN16);
   drawWordFB(TEXT_PADDING, title_y, text, g_font, FONT_STAN16);
 
+  // Test if temp is at max values for animation
+  bool isMin = (sysIsTempF) ? sysCutoffTempF <= CUTOFF_TEMP_F_MIN : sysCutoffTempC <= CUTOFF_TEMP_C_MIN;
+  bool isMax = (sysIsTempF) ? sysCutoffTempF >= CUTOFF_TEMP_F_MAX : sysCutoffTempC >= CUTOFF_TEMP_C_MAX;
+
   // left arrow shadow
-  if (sysCutoffTempF > CUTOFF_TEMP_F_MIN) {
+  if (!isMin) {
     drawThreePointTriangleFB(
       TEXT_PADDING + p_p, p_y + p_h/2 + SHADOW_OFFSET, 
       TEXT_PADDING + p_p + p_w, p_y + SHADOW_OFFSET, 
@@ -240,7 +255,7 @@ void drawTempCutoffSelection() {
   }
 
   // right arrow shadow
-  if (sysCutoffTempF < CUTOFF_TEMP_F_MAX) {
+  if (!isMax) {
     drawThreePointTriangleFB(
       TFT_WIDTH - TEXT_PADDING - p_p, p_y + p_h/2 + SHADOW_OFFSET, 
       TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y + SHADOW_OFFSET, 
@@ -250,21 +265,27 @@ void drawTempCutoffSelection() {
   }
 
   // left arrow
-  Box b_cutoff_minus = drawThreePointTriangleFB(
-    TEXT_PADDING + p_p, p_y + p_h/2, 
-    TEXT_PADDING + p_p + p_w, p_y, 
-    TEXT_PADDING + p_p + p_w, p_y + p_h, 
-    p_r, 
-    (sysCutoffTempF > CUTOFF_TEMP_F_MIN) ? p_col : p_grey, 2
+  Box b_cutoff_minus = expandBox(
+    drawThreePointTriangleFB(
+      TEXT_PADDING + p_p, p_y + p_h/2, 
+      TEXT_PADDING + p_p + p_w, p_y, 
+      TEXT_PADDING + p_p + p_w, p_y + p_h, 
+      p_r, 
+      (!isMin) ? p_col : p_grey, 2
+    ),
+    -40, 20, 20, 10
   );
 
   // right arrow
-  Box b_cutoff_plus = drawThreePointTriangleFB(
-    TFT_WIDTH - TEXT_PADDING - p_p, p_y + p_h/2, 
-    TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y, 
-    TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y + p_h, 
-    p_r, 
-    (sysCutoffTempF < CUTOFF_TEMP_F_MAX) ? p_col : p_grey, 2
+  Box b_cutoff_plus = expandBox(
+    drawThreePointTriangleFB(
+      TFT_WIDTH - TEXT_PADDING - p_p, p_y + p_h/2, 
+      TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y, 
+      TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y + p_h, 
+      p_r, 
+      (!isMax) ? p_col : p_grey, 2
+    ), 
+    20, 20, 80, 20
   );
 
   AddBoxToArray(b_cutoff_minus, TempCutoffSelection_CutoffMinus, CURRENT_PAGE);

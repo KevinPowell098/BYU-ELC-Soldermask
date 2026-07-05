@@ -19,10 +19,13 @@ void tabTwoPressed();
 void tabThreePressed();
 void tabFourPressed();
 
+// Create touch sensitive regions
+void initTabBoxes();
+
 // Functions to draw menu tabs
-void drawBG(uint16_t activeTab);
-void drawShadow(uint16_t activeTab);
-void drawGradientFill(uint16_t activeTab);
-void drawOutline(uint16_t activeTab);
-void drawTabLabels(uint16_t activeTab);
-void drawTitle(uint16_t activeTab);
+void drawBG();
+void drawShadow();
+void drawGradientFill();
+void drawOutline();
+void drawTabLabels();
+void drawTitle();

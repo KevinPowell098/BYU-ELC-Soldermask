@@ -2,6 +2,9 @@
 #include "lcd/lcd.h"
 #include "helpers/helpers.h"
 
+// Used for initialization of touch zones
+bool isInit = true;
+
 // Current menu tab variables
 uint16_t activeTab = PAGE_FOUR;
 
@@ -80,3 +83,7 @@ bool     sysIsTempF = false;
 uint16_t sysVolume = 9;
 int16_t  sysCutoffTempF = 300;
 int16_t  sysCutoffTempC = roundToNearest(getTempCFromF(sysCutoffTempF), CUTOFF_TEMP_C_STEP);
+
+// Celsius Temp Range
+uint16_t CUTOFF_TEMP_C_MAX = roundToNearest(getTempCFromF(CUTOFF_TEMP_F_MAX), CUTOFF_TEMP_C_STEP);
+uint16_t CUTOFF_TEMP_C_MIN = roundToNearest(getTempCFromF(CUTOFF_TEMP_F_MIN), CUTOFF_TEMP_C_STEP);
