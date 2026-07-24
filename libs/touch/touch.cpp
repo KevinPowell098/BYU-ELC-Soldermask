@@ -57,7 +57,7 @@ bool selectElement(int16_t x, int16_t y) {
   for (uint16_t i = 0; i < boxCount; i++) {
     if (boxes[i]._contains(x, y)) {
       // TODO - add check that current page matches
-      if (boxes[i].page == activeTab || boxes[i].page == -1) {
+      if (boxes[i].page == activePage || boxes[i].page == -1) {
         boxes[i].operation();
         isElementTouched = true;
       }
@@ -79,8 +79,6 @@ bool isElementTouched() {
     // Scale from arbitrary range to tft.width using the calibration #'s
     p.x = map(p.x, TS_MINX, TS_MAXX, 0, TFT_WIDTH);
     p.y = map(p.y, TS_MINY, TS_MAXY, 0, TFT_HEIGHT);
-
-    // Serial.println("press (maybe) detected");
 
     return selectElement(p.x, p.y);
   }
@@ -140,4 +138,4 @@ bool isElementTouched() {
 // bool updateScreen = true;
 // enum pages {one, two, three, four};
 // pages activePage = four;
-// uint16_t activeTab = static_cast<int>(activePage);
+// uint16_t activePage = static_cast<int>(activePage);

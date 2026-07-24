@@ -25,6 +25,8 @@
 #include "touch/touch.h"
 #include "menu/vars.h"
 
+#include "menu/page_one/page_one.h"
+
 // Touch sensing pins
 #define YP 7   // must be an analog pin, use "An" notation!
 #define XM 4   // must be an analog pin, use "An" notation!
@@ -75,10 +77,10 @@ void loop() {
   // static uint64_t i = 0;
   // i += 1;
   // if (i == 10000000) {
-  //   if (activeTab == PAGE_ONE)   activeTab = PAGE_TWO;
-  //   else if (activeTab == PAGE_TWO)   activeTab = PAGE_THREE;
-  //   else if (activeTab == PAGE_THREE) activeTab = PAGE_FOUR;
-  //   else if (activeTab == PAGE_FOUR)  activeTab = PAGE_ONE;
+  //   if (activePage == PAGE_ONE)   activePage = PAGE_TWO;
+  //   else if (activePage == PAGE_TWO)   activePage = PAGE_THREE;
+  //   else if (activePage == PAGE_THREE) activePage = PAGE_FOUR;
+  //   else if (activePage == PAGE_FOUR)  activePage = PAGE_ONE;
   //   updateScreen = true;
   //   i = 0;
   // };
@@ -86,22 +88,32 @@ void loop() {
   if (updateScreen) {
     initFramebuffer();
 
-    switch (activeTab) {
+    switch (activePage) {
       case PAGE_ONE:
-        drawBG();
+        drawMenu();
+        drawHeat();
         break;
-      
+
       case PAGE_TWO:
-        drawBG();
+        drawMenu();
+        drawUV();
         break;
 
       case PAGE_THREE:
-        drawBG();
+        drawMenu();
         break;
 
       case PAGE_FOUR:
-        drawBG();
+        drawMenu();
         drawSetup();
+        break;
+
+      case PAGE_ONE_PROCESS:
+        drawHeatProcess();
+        break;
+
+      case PAGE_TWO_PROCESS:
+        drawUVProcess();
         break;
     }
 

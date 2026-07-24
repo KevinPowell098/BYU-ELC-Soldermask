@@ -1,10 +1,14 @@
 #include "menu.h"
 
 // Functions to change tabs
-void tabOnePressed()   { activeTab = PAGE_ONE; }
-void tabTwoPressed()   { activeTab = PAGE_TWO; }
-void tabThreePressed() { activeTab = PAGE_THREE; }
-void tabFourPressed()  { activeTab = PAGE_FOUR; }
+bool isProcessActive() { 
+  return (activePage == PAGE_ONE_PROCESS) || (activePage == PAGE_TWO_PROCESS); 
+}
+
+void tabOnePressed()   { if (!isProcessActive()) activePage = PAGE_ONE; }
+void tabTwoPressed()   { if (!isProcessActive()) activePage = PAGE_TWO; }
+void tabThreePressed() { if (!isProcessActive()) activePage = PAGE_THREE; }
+void tabFourPressed()  { if (!isProcessActive()) activePage = PAGE_FOUR; }
 
 // Create array of function pointers to assign to tabs easily
 typedef void (*VoidFuncNoParameter) ();
@@ -16,8 +20,20 @@ VoidFuncNoParameter tabChangeFunctions[] = {
 };
 
 void initTabBoxes() {
+  Box b(
+    expandBox(
+      drawRectOutlineFB(0, TFT_HEIGHT - OPTION_H, 
+                      TFT_WIDTH / 4, OPTION_H * 2, 
+                      1, 1, outlines[0]
+      ), 
+      0, 0, 0, 20
+    )
+  );
+
+  AddBoxToArray(b, tabChangeFunctions[0], -1);
+
   // Draw background tab outlines
-  for (int i = 0; i < 4; i++) {
+  for (int i = 1; i < 4; i++) {
     Box b(
       expandBox(
         drawRectOutlineFB(i * TFT_WIDTH / 4, 
@@ -25,7 +41,7 @@ void initTabBoxes() {
                         TFT_WIDTH / 4, OPTION_H * 2, 
                         1, 1, outlines[i]
         ), 
-        40, 0, 40, 10
+        20, 0, 0, 20
       )
     );
 
@@ -33,22 +49,22 @@ void initTabBoxes() {
   }
 }
 
-void drawBG() {
-  fillScreenFB(bgs[activeTab]);
-  drawShadow();
-  drawGradientFill();
-  drawOutline();
-  drawTabLabels();
-  drawTitle();
+void drawMenu() {
+  fillScreenFB(bgs[activePage]);
+  drawMenu_Shadow();
+  drawMenu_GradientFill();
+  drawMenu_Outline();
+  drawMenu_TabLabels();
+  drawMenu_Title();
 }
 
-void drawGradientFill() {
+void drawMenu_GradientFill() {
   uint16_t h = TFT_HEIGHT - OPTION_H;
   uint16_t tab_h[] = {h, h, h, h};
   uint16_t* colors[] = {r_grad, y_grad, b_grad, g_grad};
   
-  colors[activeTab] = selection_grads[activeTab];
-  tab_h[activeTab] = TFT_HEIGHT - SELECTION_H;
+  colors[activePage] = selection_grads[activePage];
+  tab_h[activePage] = TFT_HEIGHT - SELECTION_H;
 
   for (uint16_t i = 0; i < 4; i++) {
     drawGradRectFB(i * TFT_WIDTH / 4, tab_h[i],
@@ -59,8 +75,8 @@ void drawGradientFill() {
   }
 }
 
-void drawShadow() {
-  uint16_t* colors = shadows[activeTab];
+void drawMenu_Shadow() {
+  uint16_t* colors = shadows[activePage];
   uint16_t y = TFT_HEIGHT - OPTION_H - TAB_SHADOW_OFFSET;
   uint16_t h = OPTION_H;
   uint16_t tab_y[] = {y, y, y, y};
@@ -69,19 +85,19 @@ void drawShadow() {
   uint16_t x_offset;
   uint16_t w_offset;
 
-  tab_y[activeTab] = TFT_HEIGHT - SELECTION_H - SELECTION_SHADOW_OFFSET;
-  tab_h[activeTab] = OPTION_H * 2;
+  tab_y[activePage] = TFT_HEIGHT - SELECTION_H - SELECTION_SHADOW_OFFSET;
+  tab_h[activePage] = OPTION_H * 2;
 
   for (uint16_t i = 0; i < 4; i++) {
-    if (i && i != (activeTab)) {
+    if (i && i != (activePage)) {
       x_offset = SHADOW_W;
     } else {
       x_offset = 0;
     }
 
-    if (i && i != (activeTab)) {
+    if (i && i != (activePage)) {
       w_offset = 2 * SHADOW_W;
-    } else if (i != (activeTab)) {
+    } else if (i != (activePage)) {
       w_offset = SHADOW_W;
     } else {
       w_offset = 0;
@@ -95,7 +111,7 @@ void drawShadow() {
   }
 }
 
-void drawOutline() {
+void drawMenu_Outline() {
   uint16_t tab_order[4][4] = {
     {3,2,1,0},
     {3,0,2,1},
@@ -106,11 +122,11 @@ void drawOutline() {
   // Draw background tab outlines
   for (int i = 0; i < 3; i++) {
     Box b(
-      drawRectOutlineFB(tab_order[activeTab][i] * TFT_WIDTH / 4, 
+      drawRectOutlineFB(tab_order[activePage][i] * TFT_WIDTH / 4, 
                       TFT_HEIGHT - OPTION_H, 
                       TFT_WIDTH / 4, OPTION_H * 2, 
                       OPTION_R, OPTION_WEIGHT, 
-                      outlines[tab_order[activeTab][i]]
+                      outlines[tab_order[activePage][i]]
                     )
     );
 
@@ -118,27 +134,27 @@ void drawOutline() {
   }
 
   // Draw active tab dark border
-  drawRectOutlineFB(activeTab * TFT_WIDTH / 4 - BORDER_OFFSET, TFT_HEIGHT - SELECTION_H, 
+  drawRectOutlineFB(activePage * TFT_WIDTH / 4 - BORDER_OFFSET, TFT_HEIGHT - SELECTION_H, 
                     TFT_WIDTH / 4 + (2 * BORDER_OFFSET), SELECTION_H * 2, 
                     SELECTION_R, OPTION_WEIGHT, 
-                    borders[activeTab]
+                    borders[activePage]
                   );
 
   // Draw active tab glow
-  drawRectOutlineFB(activeTab * TFT_WIDTH / 4, TFT_HEIGHT - SELECTION_H - GLOW_OFFSET, 
+  drawRectOutlineFB(activePage * TFT_WIDTH / 4, TFT_HEIGHT - SELECTION_H - GLOW_OFFSET, 
                     TFT_WIDTH / 4, SELECTION_H * 2, 
                     SELECTION_R, OPTION_WEIGHT, 
-                    glows[activeTab]
+                    glows[activePage]
                   );
 
-  drawRectOutlineFB(activeTab * TFT_WIDTH / 4, TFT_HEIGHT - SELECTION_H, 
+  drawRectOutlineFB(activePage * TFT_WIDTH / 4, TFT_HEIGHT - SELECTION_H, 
                     TFT_WIDTH / 4, SELECTION_H * 2, 
                     SELECTION_R, OPTION_WEIGHT, 
-                    outlines[activeTab]
+                    outlines[activePage]
                   );
 }
 
-void drawTabLabels() {
+void drawMenu_TabLabels() {
   uint16_t start_x[] = {17, 109, 171, 252};
   uint16_t start_x_upper[] = {15, 107, 167, 247};
   const char* labels[] = {"heat", "uv", "other", "setup"};
@@ -149,38 +165,38 @@ void drawTabLabels() {
 
   // Shadow
   drawWordFB(
-    start_x_upper[activeTab], TFT_HEIGHT - sel_h - FONT_OFFSET, 
-    labels_upper[activeTab], 
-    borders[activeTab], 
+    start_x_upper[activePage], TFT_HEIGHT - sel_h - FONT_OFFSET, 
+    labels_upper[activePage], 
+    borders[activePage], 
     FONT_STAN16
   );
 
   // Glow
   drawWordFB(
-    start_x_upper[activeTab], TFT_HEIGHT - sel_h + FONT_OFFSET, 
-    labels_upper[activeTab], 
-    glows[activeTab], 
+    start_x_upper[activePage], TFT_HEIGHT - sel_h + FONT_OFFSET, 
+    labels_upper[activePage], 
+    glows[activePage], 
     FONT_STAN16
   );
 
   // Active Tab
   drawWordFB(
-    start_x_upper[activeTab], TFT_HEIGHT - sel_h, 
-    labels_upper[activeTab], 
-    font_colors[activeTab], 
+    start_x_upper[activePage], TFT_HEIGHT - sel_h, 
+    labels_upper[activePage], 
+    font_colors[activePage], 
     FONT_STAN16
   );
 
   for (int i = 0; i < 4; i++) {
-    if (i != activeTab) {
+    if (i != activePage) {
       drawWordFB(start_x[i], TFT_HEIGHT - h, labels[i], font_colors[i], FONT_STAN16);
     }
   }
 }
 
-void drawTitle() {
-  uint16_t title_color = font_colors[activeTab];
-  uint16_t shadow_color = borders[activeTab];
+void drawMenu_Title() {
+  uint16_t title_color = font_colors[activePage];
+  uint16_t shadow_color = borders[activePage];
 
   // Title constants
   uint16_t title_x = TEXT_PADDING;
@@ -198,9 +214,8 @@ void drawTitle() {
     "Setup and Configuration"
   };
 
-
-  drawWordFB(title_x, title_y + FONT_OFFSET, title_text[activeTab], shadow_color, FONT_STAN16);
-  drawWordFB(title_x, title_y, title_text[activeTab], title_color, FONT_STAN16);
+  drawWordFB(title_x, title_y + FONT_OFFSET, title_text[activePage], shadow_color, FONT_STAN16);
+  drawWordFB(title_x, title_y, title_text[activePage], title_color, FONT_STAN16);
 
   drawLineFB(
     line_border, line_y + FONT_OFFSET, 
@@ -210,4 +225,3 @@ void drawTitle() {
   );
   drawLineFB(line_border, line_y, TFT_WIDTH - (line_border * 2), 0, line_weight, title_color);
 }
-

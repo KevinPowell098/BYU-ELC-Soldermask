@@ -8,10 +8,9 @@
 #include "fonts/font_stan12.h"
 #include "fonts/font_stan16.h"
 #include "touch/touch.h"
+#include "page_two_helpers.h"
 
-void drawSetup();
-void drawSetup_TempScaleSelection();
-void drawSetup_VolumeSelection();
-void drawSetup_TempCutoffSelection();
-void drawSetup_ResetButton();
-void drawSetup_ResetConfirmation();
+void drawUVProcess();
+
+void drawUVProcess_BG();
+void drawUVProcess_Cancel();

@@ -1,16 +1,16 @@
 #include "../vars.h"
 #include "helpers/helpers.h"
 
-void setCutoffTempF();
-void setCutoffTempC();
+void setup_SetCutoffTempF();
+void setup_SetCutoffTempC();
 
-void TempScaleSelection_SetToF();
-void TempScaleSelection_SetToC();
+void setup_TempScaleSelection_SetToF();
+void setup_TempScaleSelection_SetToC();
 
-void VolumeSelection_VolumePlus();
-void VolumeSelection_VolumeMinus();
+void setup_VolumeSelection_Plus();
+void setup_VolumeSelection_Minus();
 
-void TempCutoffSelection_CutoffPlus();
-void TempCutoffSelection_CutoffMinus();
+void setup_TempCutoffSelection_Plus();
+void setup_TempCutoffSelection_Minus();
 
-void clampTemp();
+void setup_ClampCutoffTemp();

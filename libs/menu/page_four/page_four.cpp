@@ -2,19 +2,23 @@
 #include "helpers/helpers.h"
 #include "page_four_helpers.h"
 
+static const uint16_t CURRENT_PAGE = PAGE_FOUR;
+static const uint16_t FONT_COLOR = font_colors[CURRENT_PAGE];
+static const uint16_t SHADOW_COLOR = borders[CURRENT_PAGE];
+
 void drawSetup() {
-  drawTempScaleSelection();
-  drawVolumeSelection();
-  drawTempCutoffSelection();
-  drawResetButton();
+  drawSetup_TempScaleSelection();
+  drawSetup_VolumeSelection();
+  drawSetup_TempCutoffSelection();
+  drawSetup_ResetButton();
 }
 
-void drawTempScaleSelection() {
+void drawSetup_TempScaleSelection() {
   const char* text = "Temperature Scale";
   uint16_t title_y = 55;
 
-  drawWordFB(TEXT_PADDING, title_y + FONT_OFFSET, text, g_border2, FONT_STAN16);
-  drawWordFB(TEXT_PADDING, title_y, text, g_font, FONT_STAN16);
+  drawWordFB(TEXT_PADDING, title_y + FONT_OFFSET, text, SHADOW_COLOR, FONT_STAN16);
+  drawWordFB(TEXT_PADDING, title_y, text, FONT_COLOR, FONT_STAN16);
 
   // Box constants
   uint16_t box2_x = (TFT_WIDTH + TEXT_PADDING) / 2;
@@ -41,16 +45,16 @@ void drawTempScaleSelection() {
   
   Box b_scale_f = expandBox(
     drawGradRectFB(TEXT_PADDING, box_y, box_w, box_h, box_r, f_colors, 2), 
-    0, -10, 200, 10
+    0, -10, 0, 10
   );
   Box b_scale_c = expandBox(
     drawGradRectFB(box2_x, box_y, box_w, box_h, box_r, c_colors, 2), 
-    50, -10, 100, 10
+    0, -10, 100, 10
   );
 
   // Add buttons to touch screen sensing
-  AddBoxToArray(b_scale_f, TempScaleSelection_SetToF, CURRENT_PAGE);
-  AddBoxToArray(b_scale_c, TempScaleSelection_SetToC, CURRENT_PAGE);
+  AddBoxToArray(b_scale_f, setup_TempScaleSelection_SetToF, CURRENT_PAGE);
+  AddBoxToArray(b_scale_c, setup_TempScaleSelection_SetToC, CURRENT_PAGE);
 
   drawRectOutlineFB(TEXT_PADDING, box_y, box_w, box_h, box_r, line_w, g_font);
   drawRectOutlineFB(box2_x, box_y, box_w, box_h, box_r, line_w, g_font);
@@ -63,16 +67,16 @@ void drawTempScaleSelection() {
   uint16_t label_y = 107;
 
   if (sysIsTempF) {
-    drawWordFB(label_f_x, label_y + FONT_OFFSET, text_f, g_border2, FONT_STAN16);
+    drawWordFB(label_f_x, label_y + FONT_OFFSET, text_f, SHADOW_COLOR, FONT_STAN16);
   } else {
-    drawWordFB(label_c_x, label_y + FONT_OFFSET, text_c, g_border2, FONT_STAN16);
+    drawWordFB(label_c_x, label_y + FONT_OFFSET, text_c, SHADOW_COLOR, FONT_STAN16);
   }
 
-  drawWordFB(label_f_x, label_y, text_f, g_font, FONT_STAN16);
-  drawWordFB(label_c_x, label_y, text_c, g_font, FONT_STAN16);
+  drawWordFB(label_f_x, label_y, text_f, FONT_COLOR, FONT_STAN16);
+  drawWordFB(label_c_x, label_y, text_c, FONT_COLOR, FONT_STAN16);
 }
 
-void drawVolumeSelection() {
+void drawSetup_VolumeSelection() {
   // volume ranges from 0-10
 
   // Create volume text from variable
@@ -137,12 +141,12 @@ void drawVolumeSelection() {
   uint16_t shadow_r = button_r + 2;
 
   // Title
-  drawWordFB(TEXT_PADDING, title_y + FONT_OFFSET, text, g_border2, FONT_STAN16);
-  drawWordFB(TEXT_PADDING, title_y, text, g_font, FONT_STAN16);
+  drawWordFB(TEXT_PADDING, title_y + FONT_OFFSET, text, SHADOW_COLOR, FONT_STAN16);
+  drawWordFB(TEXT_PADDING, title_y, text, FONT_COLOR, FONT_STAN16);
 
   // percentage reading
-  drawWordFB(text_x, text_y + FONT_OFFSET, text_v, g_border2, FONT_STAN12);
-  drawWordFB(text_x, text_y, text_v, g_font, FONT_STAN12);
+  drawWordFB(text_x, text_y + FONT_OFFSET, text_v, SHADOW_COLOR, FONT_STAN12);
+  drawWordFB(text_x, text_y, text_v, FONT_COLOR, FONT_STAN12);
 
   // percentage bar
   drawGradRectFB(bar_x, bar_y, bar_w, bar_h, bar_r, bar_color, 2);
@@ -190,16 +194,16 @@ void drawVolumeSelection() {
   // volume buttons outline
   Box b_volume_minus = expandBox(
     drawRectOutlineFB(TEXT_PADDING, shadow_y, bar_h, bar_h, button_r, button_w, button_c),
-    0, 0, 10, 10
+    -20, 0, 10, 10
   );
   Box b_volume_plus  = expandBox(
     drawRectOutlineFB(button2_x, shadow_y, bar_h, bar_h, button_r, button_w, button_c),
-    60, 0, 80, 0
+    -20, 0, 80, 10
   );
 
   // add to touch sensing
-  AddBoxToArray(b_volume_minus, VolumeSelection_VolumeMinus, CURRENT_PAGE);
-  AddBoxToArray(b_volume_plus, VolumeSelection_VolumePlus, CURRENT_PAGE);
+  AddBoxToArray(b_volume_minus, setup_VolumeSelection_Minus, CURRENT_PAGE);
+  AddBoxToArray(b_volume_plus, setup_VolumeSelection_Plus, CURRENT_PAGE);
 
   // minus symbol
   drawGradRectFB(minus_x, plus1_y - 1, symbol_h, symbol_w, symbol_r, symbol_c, 2);
@@ -209,7 +213,7 @@ void drawVolumeSelection() {
   drawGradRectFB(plus2_x, plus2_y - 1, symbol_w, symbol_h, symbol_r, symbol_c, 2);
 }
 
-void drawTempCutoffSelection() {
+void drawSetup_TempCutoffSelection() {
   const char* text = "Temperature Cutoff";
   uint16_t title_y = 252;
   uint16_t p_y = 280;
@@ -237,8 +241,8 @@ void drawTempCutoffSelection() {
   uint16_t w_x = (TFT_WIDTH - getWordLength(w_text, FONT_STAN16))/2;
   uint16_t w_o = 2;
 
-  drawWordFB(TEXT_PADDING, title_y + FONT_OFFSET, text, g_border2, FONT_STAN16);
-  drawWordFB(TEXT_PADDING, title_y, text, g_font, FONT_STAN16);
+  drawWordFB(TEXT_PADDING, title_y + FONT_OFFSET, text, SHADOW_COLOR, FONT_STAN16);
+  drawWordFB(TEXT_PADDING, title_y, text, FONT_COLOR, FONT_STAN16);
 
   // Test if temp is at max values for animation
   bool isMin = (sysIsTempF) ? sysCutoffTempF <= CUTOFF_TEMP_F_MIN : sysCutoffTempC <= CUTOFF_TEMP_C_MIN;
@@ -285,11 +289,11 @@ void drawTempCutoffSelection() {
       p_r, 
       (!isMax) ? p_col : p_grey, 2
     ), 
-    20, 20, 80, 20
+    -20, 20, 80, 20
   );
 
-  AddBoxToArray(b_cutoff_minus, TempCutoffSelection_CutoffMinus, CURRENT_PAGE);
-  AddBoxToArray(b_cutoff_plus, TempCutoffSelection_CutoffPlus, CURRENT_PAGE);
+  AddBoxToArray(b_cutoff_minus, setup_TempCutoffSelection_Minus, CURRENT_PAGE);
+  AddBoxToArray(b_cutoff_plus, setup_TempCutoffSelection_Plus, CURRENT_PAGE);
 
   // background rectangle
   drawGradRectFB(
@@ -301,20 +305,20 @@ void drawTempCutoffSelection() {
   // temperature text shadow
   drawWordFB(
     w_x, p_y + p_h/2 - FONT_STAN16.HEIGHT/2 + w_o, 
-    w_text, g_border2, FONT_STAN16
+    w_text, SHADOW_COLOR, FONT_STAN16
   );
 
   // temperature text
   drawWordFB(
     w_x, p_y + p_h/2 - FONT_STAN16.HEIGHT/2, 
-    w_text, g_font, FONT_STAN16
+    w_text, FONT_COLOR, FONT_STAN16
   );
 }
 
-void drawResetConfirmation() {
+void drawSetup_ResetConfirmation() {
   // If confirmed, set all values to defaults
 }
 
-void drawResetButton() {
+void drawSetup_ResetButton() {
   // If clicked call drawResetConfirmation()
 }

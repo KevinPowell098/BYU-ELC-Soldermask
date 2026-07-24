@@ -3,11 +3,17 @@
 
 #include <cstdint>
 
+
+/***** Rendering Constants *****/
+
 // Page numbering constants
 #define PAGE_ONE   0
 #define PAGE_TWO   1
 #define PAGE_THREE 2
 #define PAGE_FOUR  3
+
+#define PAGE_ONE_PROCESS 4
+#define PAGE_TWO_PROCESS 5
 
 // Page layout constants
 #define SELECTION_H       45
@@ -23,7 +29,13 @@
 #define FONT_OFFSET       1
 #define TEXT_PADDING      12
 #define SHADOW_OFFSET     2
+#define MARGIN_X          12
 #define SELECTION_SHADOW_OFFSET  5
+
+#define CURSOR_Y_DEFAULT 0
+
+
+/***** Setup Page Variables *****/
 
 // High Temperature Cutoff Range
 #define CUTOFF_TEMP_F_MAX  400
@@ -34,11 +46,47 @@
 // Volume Max
 #define SYS_VOLUME_MAX 10
 
+
+/***** Bake Page Variables *****/
+
+// Bake Temperature Range
+#define BAKE_TEMP_F_MAX  200
+#define BAKE_TEMP_F_MIN  100
+#define BAKE_TEMP_F_STEP 10
+#define BAKE_TEMP_C_STEP 5
+
+// Bake Time Range in Seconds
+#define BAKE_TIME_S_MAX  600
+#define BAKE_TIME_S_MIN  60
+#define BAKE_TIME_S_STEP 30
+
+
+/***** UV Cure Page Variables *****/
+
+// Cure Time Range in Seconds
+#define CURE_TIME_S_MAX  600
+#define CURE_TIME_S_MIN  60
+#define CURE_TIME_S_STEP 30
+
+// Cure Power Range in Percent
+#define CURE_POWER_MAX  100
+#define CURE_POWER_MIN  10
+#define CURE_POWER_STEP 10
+
+
+/***** Control Flow Variables *****/
+
 // Used for initialization of touch zones
 extern bool isInit;
 
 // Current menu tab
-extern uint16_t activeTab;
+extern uint16_t activePage;
+
+// Current y position
+extern uint16_t cursor_y;
+
+
+/***** Color Constants *****/
 
 // Tab outline colors
 extern uint16_t r_outline;
@@ -100,14 +148,26 @@ extern uint16_t y_border2;
 extern uint16_t b_border2;
 extern uint16_t g_border2;
 
-// Program variables
+
+/***** Program Variables *****/
+
+// Setup page variables
 extern bool     sysIsTempF;
 extern uint16_t sysVolume;
-extern int16_t  sysCutoffTempF;
-extern int16_t  sysCutoffTempC;
-
-// Celsius Temp Range
+extern uint16_t sysCutoffTempF;
+extern uint16_t sysCutoffTempC;
 extern uint16_t CUTOFF_TEMP_C_MAX;
 extern uint16_t CUTOFF_TEMP_C_MIN;
+
+// Bake page variables
+extern uint16_t sysBakeTempF;
+extern uint16_t sysBakeTempC;
+extern uint16_t sysBakeTimeS;
+extern uint16_t BAKE_TEMP_C_MAX;
+extern uint16_t BAKE_TEMP_C_MIN;
+
+// UV page variables
+extern uint16_t sysCureTimeS;
+extern uint16_t sysCurePower;
 
 #endif

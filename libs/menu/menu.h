@@ -14,6 +14,7 @@
 #include "page_four/page_four.h"
 
 // Functions to change tabs
+bool isProcessActive();
 void tabOnePressed();
 void tabTwoPressed();
 void tabThreePressed();
@@ -23,9 +24,9 @@ void tabFourPressed();
 void initTabBoxes();
 
 // Functions to draw menu tabs
-void drawBG();
-void drawShadow();
-void drawGradientFill();
-void drawOutline();
-void drawTabLabels();
-void drawTitle();
+void drawMenu();
+void drawMenu_Shadow();
+void drawMenu_GradientFill();
+void drawMenu_Outline();
+void drawMenu_TabLabels();
+void drawMenu_Title();

@@ -42,11 +42,23 @@ int16_t max(int16_t n, int16_t m) {
   }
 }
 
+// TODO: delete this. Here for debugging
+// void drawHeatProcess() {
+
+// }
+
 void initMenu() {
   initTabBoxes();
 
   // Init each page
-  drawSetup();
+  drawHeat();   // 1
+  drawUV();     // 2
+  // 3
+  drawSetup();  // 4
+
+  // Init each process page
+  drawHeatProcess();  // 1
+  drawUVProcess();    // 2
 
   // Ensure touch elements are not generated again
   isInit = false;
