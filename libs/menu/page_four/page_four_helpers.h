@@ -1,5 +1,4 @@
-#include "../vars.h"
-#include "helpers/helpers.h"
+#pragma once
 
 void setup_SetCutoffTempF();
 void setup_SetCutoffTempC();

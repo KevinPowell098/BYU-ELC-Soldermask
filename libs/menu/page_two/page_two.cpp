@@ -1,6 +1,16 @@
 #include "page_two.h"
 #include "helpers/helpers.h"
 
+#include "../vars.h"
+#include "lcd/lcd.h"
+#include "fonts/fonts.h"
+#include "fonts/font_stan7.h"
+#include "fonts/font_stan9.h"
+#include "fonts/font_stan12.h"
+#include "fonts/font_stan16.h"
+#include "touch/touch.h"
+#include "page_two_helpers.h"
+
 static const uint16_t CURRENT_PAGE = PAGE_TWO;
 static const uint16_t FONT_COLOR = font_colors[CURRENT_PAGE];
 static const uint16_t SHADOW_COLOR = borders[CURRENT_PAGE];
@@ -133,119 +143,6 @@ void drawUV_TimeSetting() {
     w_text, FONT_COLOR, FONT_STAN16
   );
 }
-
-// void drawUV_PowerSetting() {
-//   uint16_t offset_h = 55;
-//   uint16_t text_h = 30;
-//   cursor_y += offset_h;
-
-//   const char* title = "Power Set";
-//   uint16_t shadow_y = cursor_y + FONT_OFFSET;
-
-//   drawWordFB(MARGIN_X, shadow_y, title, SHADOW_COLOR, FONT_STAN16);
-//   drawWordFB(MARGIN_X, cursor_y, title, FONT_COLOR, FONT_STAN16);
-
-//   cursor_y += text_h;
-
-//   // Test if temp is at max values for animation
-//   bool isMin = sysCurePower <= CURE_POWER_MIN;
-//   bool isMax = sysCurePower >= CURE_POWER_MAX;
-
-//   // pointer variables
-//   uint16_t p_y = cursor_y;
-//   uint16_t p_h = 36;
-//   uint16_t p_w = p_h;
-//   uint16_t p_r = 4;
-//   uint16_t p_p = 20;
-//   uint16_t p_col[] = {color565(30,58,22), color565(24,44,18)};
-//   uint16_t p_grey[] = {color565(28,50,16), color565(24,42,14)};
-//   uint16_t shadow_c[] = {y_border2, y_border2};
-
-//   cursor_y += p_h;
-
-//   // rectangle variables
-//   uint16_t r_p = 25;
-//   uint16_t r_r = 3;
-//   uint16_t r_o = 2;
-//   uint16_t r_color[] = {color565(16,20,0), color565(20,28,2)};
-
-//   // Create temp text from variable
-//   char w_text[64];
-//   uint16_t len = 0;
-//   int16_t power = sysCurePower;
-//   len += snprintf(w_text + len, sizeof(w_text) - len, "%d", power);
-
-//   uint16_t w_x = (TFT_WIDTH - getWordLength(w_text, FONT_STAN16))/2;
-//   uint16_t w_o = 2;
-
-//   // left arrow shadow
-//   if (!isMin) {
-//     drawThreePointTriangleFB(
-//       TEXT_PADDING + p_p, p_y + p_h/2 + SHADOW_OFFSET, 
-//       TEXT_PADDING + p_p + p_w, p_y + SHADOW_OFFSET, 
-//       TEXT_PADDING + p_p + p_w, p_y + p_h + SHADOW_OFFSET, 
-//       p_r, shadow_c, 2
-//     );
-//   }
-
-//   // right arrow shadow
-//   if (!isMax) {
-//     drawThreePointTriangleFB(
-//       TFT_WIDTH - TEXT_PADDING - p_p, p_y + p_h/2 + SHADOW_OFFSET, 
-//       TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y + SHADOW_OFFSET, 
-//       TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y + p_h + SHADOW_OFFSET, 
-//       p_r, shadow_c, 2
-//     );
-//   }
-
-//   // left arrow
-//   Box b_cutoff_minus = expandBox(
-//     drawThreePointTriangleFB(
-//       TEXT_PADDING + p_p, p_y + p_h/2, 
-//       TEXT_PADDING + p_p + p_w, p_y, 
-//       TEXT_PADDING + p_p + p_w, p_y + p_h, 
-//       p_r, 
-//       (!isMin) ? p_col : p_grey, 2
-//     ),
-//     -40, 20, 20, 10
-//   );
-
-//   // right arrow
-//   Box b_cutoff_plus = expandBox(
-//     drawThreePointTriangleFB(
-//       TFT_WIDTH - TEXT_PADDING - p_p, p_y + p_h/2, 
-//       TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y, 
-//       TFT_WIDTH - TEXT_PADDING - p_p - p_w, p_y + p_h, 
-//       p_r, 
-//       (!isMax) ? p_col : p_grey, 2
-//     ), 
-//     -20, 20, 80, 20
-//   );
-
-//   if (isInit) {
-//     AddBoxToArray(b_cutoff_minus, UV_PowerSetting_Minus, CURRENT_PAGE);
-//     AddBoxToArray(b_cutoff_plus, UV_PowerSetting_Plus, CURRENT_PAGE);
-//   }
-
-//   // background rectangle
-//   drawGradRectFB(
-//     TEXT_PADDING + p_p + p_w + r_p, p_y + r_o,
-//     TFT_WIDTH - 2 * (TEXT_PADDING + p_p + p_w + r_p), p_h - 2 * r_o,
-//     r_r, r_color, 2
-//   );
-
-//   // temperature text shadow
-//   drawWordFB(
-//     w_x, p_y + p_h/2 - FONT_STAN16.HEIGHT/2 + w_o, 
-//     w_text, SHADOW_COLOR, FONT_STAN16
-//   );
-
-//   // temperature text
-//   drawWordFB(
-//     w_x, p_y + p_h/2 - FONT_STAN16.HEIGHT/2, 
-//     w_text, FONT_COLOR, FONT_STAN16
-//   );
-// }
 
 void drawUV_PowerSetting() {
   // volume ranges from 0-10

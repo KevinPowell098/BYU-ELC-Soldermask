@@ -1,15 +1,8 @@
 #pragma once
 
-#include "../vars.h"
-#include "lcd/lcd.h"
-#include "fonts/fonts.h"
-#include "fonts/font_stan7.h"
-#include "fonts/font_stan9.h"
-#include "fonts/font_stan12.h"
-#include "fonts/font_stan16.h"
-#include "touch/touch.h"
 
 void drawSetup();
+
 void drawSetup_TempScaleSelection();
 void drawSetup_VolumeSelection();
 void drawSetup_TempCutoffSelection();

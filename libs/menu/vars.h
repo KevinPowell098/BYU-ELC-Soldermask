@@ -85,6 +85,9 @@ extern uint16_t activePage;
 // Current y position
 extern uint16_t cursor_y;
 
+// Temperature in Celsius
+extern uint16_t tempInC;
+
 
 /***** Color Constants *****/
 

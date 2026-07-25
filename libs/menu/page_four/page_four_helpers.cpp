@@ -1,4 +1,6 @@
 #include "page_four_helpers.h"
+#include "../vars.h"
+#include "helpers/helpers.h"
 
 
 void setup_SetCutoffTempF() {

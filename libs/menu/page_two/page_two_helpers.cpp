@@ -1,5 +1,5 @@
 #include "page_two_helpers.h"
-
+#include "../vars.h"
 
 void UV_PowerSetting_Plus() {
   if (sysCurePower < CURE_POWER_MAX) {

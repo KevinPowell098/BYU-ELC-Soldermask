@@ -1,6 +1,15 @@
 #include "page_one_run.h"
 #include "page_one_helpers.h"
 
+#include "../vars.h"
+#include "lcd/lcd.h"
+#include "fonts/fonts.h"
+#include "fonts/font_stan7.h"
+#include "fonts/font_stan9.h"
+#include "fonts/font_stan12.h"
+#include "fonts/font_stan16.h"
+#include "touch/touch.h"
+
 static const uint16_t CURRENT_PAGE = PAGE_ONE_PROCESS;
 
 

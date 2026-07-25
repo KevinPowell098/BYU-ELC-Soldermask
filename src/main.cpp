@@ -16,6 +16,7 @@
 #include <SPI.h>
 #include "Adafruit_GFX.h"
 #include "Adafruit_HX8357.h"
+#include <Adafruit_MAX31856.h>
 
 #include "TouchScreen.h"
 
@@ -26,6 +27,15 @@
 #include "menu/vars.h"
 
 #include "menu/page_one/page_one.h"
+#include "menu/page_two/page_two.h"
+#include "menu/page_three/page_three.h"
+#include "menu/page_four/page_four.h"
+
+#include "menu/page_one/page_one_run.h"
+#include "menu/page_two/page_two_run.h"
+
+// Temperature board 'data ready' pin
+#define DRDY_PIN 5
 
 // Touch sensing pins
 #define YP 7   // must be an analog pin, use "An" notation!
@@ -56,6 +66,9 @@ SPIClass spiTFT(FSPI);  // Or VSPI — just avoid overlap with other peripherals
 // Pass the custom SPI bus to the display driver
 Adafruit_HX8357 tft = Adafruit_HX8357(&spiTFT, TFT_CS, TFT_DC, TFT_RST);
 
+// Use software SPI: CS, DI, DO, CLK
+Adafruit_MAX31856 thermo = Adafruit_MAX31856(14, 11, 13, 12);
+
 bool updateScreen = true;
 
 
@@ -70,20 +83,23 @@ void setup() {
 
   initFramebuffer();
   initMenu();
+
+  // pin to sense if temp data is ready
+  pinMode(DRDY_PIN, INPUT);
+
+  // Initiate thermocouple
+  if (!thermo.begin()) {
+    Serial.println("Could not initialize thermocouple.");
+    while (1) delay(10);
+  }
+
+  // Set thermocouple mode
+  thermo.setThermocoupleType(MAX31856_TCTYPE_K);
+  thermo.setConversionMode(MAX31856_CONTINUOUS);
 }
 
 void loop() {
-  // // for testing
-  // static uint64_t i = 0;
-  // i += 1;
-  // if (i == 10000000) {
-  //   if (activePage == PAGE_ONE)   activePage = PAGE_TWO;
-  //   else if (activePage == PAGE_TWO)   activePage = PAGE_THREE;
-  //   else if (activePage == PAGE_THREE) activePage = PAGE_FOUR;
-  //   else if (activePage == PAGE_FOUR)  activePage = PAGE_ONE;
-  //   updateScreen = true;
-  //   i = 0;
-  // };
+  tempInC = thermo.readThermocoupleTemperature();
 
   if (updateScreen) {
     initFramebuffer();
@@ -126,4 +142,3 @@ void loop() {
   // redraw screen if touch detected inside object
   updateScreen = isElementTouched();
 }
-

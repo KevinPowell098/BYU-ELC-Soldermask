@@ -14,6 +14,9 @@ uint16_t activePage = PAGE_TWO;
 // Current y position
 uint16_t cursor_y;
 
+// Temperature in Celsius
+uint16_t tempInC = 0;
+
 
 /***** Color Constants *****/
 

@@ -1,6 +1,4 @@
-#include "../vars.h"
-#include "helpers/helpers.h"
-#include "page_one_run.h"
+#pragma once
 
 void bake_SetBakeTempF();
 void bake_SetBakeTempC();

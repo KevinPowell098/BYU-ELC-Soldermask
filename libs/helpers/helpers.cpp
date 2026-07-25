@@ -1,6 +1,16 @@
-#include "helpers/helpers.h"
+#include "helpers.h"
+#include "lcd/lcd.h"
 #include "menu/vars.h"
 #include "menu/menu.h"
+
+#include "menu/page_one/page_one.h"
+#include "menu/page_two/page_two.h"
+#include "menu/page_three/page_three.h"
+#include "menu/page_four/page_four.h"
+
+#include "menu/page_one/page_one_run.h"
+#include "menu/page_two/page_two_run.h"
+
 
 int16_t getTempFFromC(int16_t TempC) {
   return ((TempC * 9.0) / 5.0) + 32;
@@ -42,11 +52,6 @@ int16_t max(int16_t n, int16_t m) {
   }
 }
 
-// TODO: delete this. Here for debugging
-// void drawHeatProcess() {
-
-// }
-
 void initMenu() {
   initTabBoxes();
 
@@ -62,4 +67,8 @@ void initMenu() {
 
   // Ensure touch elements are not generated again
   isInit = false;
+}
+
+void updateTemp() {
+
 }

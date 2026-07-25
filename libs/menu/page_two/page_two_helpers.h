@@ -1,6 +1,4 @@
-#include "../vars.h"
-#include "helpers/helpers.h"
-#include "page_two_run.h"
+#pragma once
 
 
 void UV_PowerSetting_Plus();

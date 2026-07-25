@@ -1,3 +1,6 @@
+#include "../vars.h"
+#include "helpers/helpers.h"
+#include "page_one_run.h"
 #include "page_one_helpers.h"
 
 

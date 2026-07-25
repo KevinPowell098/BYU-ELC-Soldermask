@@ -2,6 +2,15 @@
 #include "helpers/helpers.h"
 #include "page_four_helpers.h"
 
+#include "../vars.h"
+#include "lcd/lcd.h"
+#include "fonts/fonts.h"
+#include "fonts/font_stan7.h"
+#include "fonts/font_stan9.h"
+#include "fonts/font_stan12.h"
+#include "fonts/font_stan16.h"
+#include "touch/touch.h"
+
 static const uint16_t CURRENT_PAGE = PAGE_FOUR;
 static const uint16_t FONT_COLOR = font_colors[CURRENT_PAGE];
 static const uint16_t SHADOW_COLOR = borders[CURRENT_PAGE];

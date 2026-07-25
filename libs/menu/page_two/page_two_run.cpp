@@ -1,5 +1,14 @@
+#include "../vars.h"
+#include "lcd/lcd.h"
+#include "touch/touch.h"
+#include "helpers/helpers.h"
 #include "page_two_run.h"
 #include "page_two_helpers.h"
+
+#include "fonts/fonts.h"
+#include "fonts/font_stan12.h"
+#include "fonts/font_stan16.h"
+
 
 // Color Constants
 // PAGE_TWO_PROCESS % 4 == PAGE_TWO

@@ -1,5 +1,7 @@
+#pragma once
+
+#include <cstdint>
 #include "lcd/lcd.h"
-#include "menu/vars.h"
 
 #define MAX_BOXES 100
 
