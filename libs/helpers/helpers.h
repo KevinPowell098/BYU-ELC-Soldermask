@@ -13,4 +13,4 @@ int16_t max(int16_t n, int16_t m);
 
 void initMenu();
 
-void updateTemp();
+bool isProcessActive();

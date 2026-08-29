@@ -27,7 +27,7 @@
 Box boxes[MAX_BOXES];
 uint16_t boxCount = 0;
 
-void AddBoxToArray(Box b) {
+void AddBoxToArray(Box& b) {
   if (isInit) {
     if (boxCount < MAX_BOXES) {
       boxes[boxCount++] = b;
@@ -37,7 +37,7 @@ void AddBoxToArray(Box b) {
   }
 }
 
-void AddBoxToArray(Box b, void (*func)(), int16_t page) {
+void AddBoxToArray(Box& b, void (*func)(), int16_t page) {
   if (isInit) {
     if (boxCount < MAX_BOXES) {
       b.operation = func;

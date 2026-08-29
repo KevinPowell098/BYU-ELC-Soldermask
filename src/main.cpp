@@ -34,8 +34,8 @@
 #include "menu/page_one/page_one_run.h"
 #include "menu/page_two/page_two_run.h"
 
-// Temperature board 'data ready' pin
-#define DRDY_PIN 5
+// TODO: remove this, for testing without tc only
+#include <math.h>
 
 // Touch sensing pins
 #define YP 7   // must be an analog pin, use "An" notation!
@@ -60,6 +60,16 @@
 #define TFT_DC    9
 #define TFT_RST  -1  // Use -1 if reset is not connected
 
+// Pin config for MAX31856 temperature sensor
+#define TEMP_CS  -1
+#define TEMP_SDI -1
+#define TEMP_SDO -1
+#define TEMP_SCK -1
+
+// Temperature board 'data ready' pin
+#define DRDY_PIN 5
+
+
 // Create a custom SPI bus
 SPIClass spiTFT(FSPI);  // Or VSPI — just avoid overlap with other peripherals
 
@@ -67,10 +77,21 @@ SPIClass spiTFT(FSPI);  // Or VSPI — just avoid overlap with other peripherals
 Adafruit_HX8357 tft = Adafruit_HX8357(&spiTFT, TFT_CS, TFT_DC, TFT_RST);
 
 // Use software SPI: CS, DI, DO, CLK
-Adafruit_MAX31856 thermo = Adafruit_MAX31856(14, 11, 13, 12);
+Adafruit_MAX31856 thermocouple = Adafruit_MAX31856(TEMP_CS, TEMP_SDI, TEMP_SDO, TEMP_SCK);
 
+// Used to poll MAX31856 only when DRDY pin has first gone low
+bool tempIsReady = false;
+bool tempWasReady = false;
+
+// Track if control flow recently switched to a process to start timer
+bool wasProcessRunning = false;
+uint32_t startTimeMillis = 0;
+uint32_t timeBufferMillis = 0;
+uint32_t processTimeMillis = 0;
+uint16_t timeRemainder = 0;
+
+// Becomes true when an element is pressed
 bool updateScreen = true;
-
 
 void setup() {
   Serial.begin(115200);
@@ -88,18 +109,25 @@ void setup() {
   pinMode(DRDY_PIN, INPUT);
 
   // Initiate thermocouple
-  if (!thermo.begin()) {
+  if (!thermocouple.begin()) {
     Serial.println("Could not initialize thermocouple.");
     while (1) delay(10);
   }
 
   // Set thermocouple mode
-  thermo.setThermocoupleType(MAX31856_TCTYPE_K);
-  thermo.setConversionMode(MAX31856_CONTINUOUS);
+  thermocouple.setThermocoupleType(MAX31856_TCTYPE_K);
+  thermocouple.setConversionMode(MAX31856_CONTINUOUS);
 }
 
 void loop() {
-  tempInC = thermo.readThermocoupleTemperature();
+  digitalRead(DRDY_PIN);
+
+  // New reading is available when DRDY pin is low
+  tempWasReady = tempIsReady;
+  tempIsReady = !digitalRead(DRDY_PIN);
+  if (!tempWasReady && tempIsReady) {
+    sysTempInC = thermocouple.readThermocoupleTemperature();
+  }
 
   if (updateScreen) {
     initFramebuffer();
@@ -138,7 +166,40 @@ void loop() {
     updateScreen = false;
   }
 
+  if (isProcessActive()) {
+    if (!wasProcessRunning) {
+      startTimeMillis = millis();
+      timeRemainder = startTimeMillis % 1000;
+
+      // Update to avoid timer reset
+      wasProcessRunning = true;
+    }
+
+    timeBufferMillis = (millis() - startTimeMillis);
+
+    // Update screen once every second
+    if (timeBufferMillis >= processTimeMillis + 1000) {
+      updateScreen = true;
+      processTimeMillis = timeBufferMillis;
+      processTimeInS = (timeBufferMillis - timeRemainder) / 1000 + 1;
+
+      // TODO: remove this, for testing without tc only
+      sysTempInC = 10 * sin(processTimeInS / 10.0) + 40;
+      // sysTempInC = 40;
+      drawHeatProcess_addPoint();
+    }
+  } else {
+    if (wasProcessRunning) {
+      timeBufferMillis = 0;
+      processTimeMillis = 0;
+      processTimeInS = 0;
+
+      // Allow timer reset
+      wasProcessRunning = false;
+    }
+  }
+
   // test for touch input every loop, 
   // redraw screen if touch detected inside object
-  updateScreen = isElementTouched();
+  updateScreen = updateScreen || isElementTouched();
 }

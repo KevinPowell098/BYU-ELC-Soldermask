@@ -1,5 +1,11 @@
 #pragma once
 
+
+extern bool isBakeComplete;
+extern bool wasBakeComplete;
+extern bool show_bakeComplete;
+
+
 void bake_SetBakeTempF();
 void bake_SetBakeTempC();
 
@@ -13,3 +19,5 @@ void bake_StartButton_Press();
 void bake_ProcessCancel_Press();
 
 void bake_clampBakeTemp();
+
+void bake_bakeComplete_close();

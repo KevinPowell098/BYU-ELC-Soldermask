@@ -3,6 +3,16 @@
 #include "page_one_run.h"
 #include "page_one_helpers.h"
 
+#include "touch/touch.h"
+#include "TouchScreen.h"
+#include "lcd/lcd.h"
+#include "menu/vars.h"
+
+
+bool isBakeComplete = false;
+bool wasBakeComplete = false;
+// TODO: set this to false
+bool show_bakeComplete = false;
 
 void bake_SetBakeTempF() {
   sysBakeTempF = max(min(getTempFFromC(sysBakeTempC),BAKE_TEMP_F_MAX), BAKE_TEMP_F_MIN);
@@ -54,6 +64,7 @@ void bake_StartButton_Press() {
 
 void bake_ProcessCancel_Press() {
   activePage = PAGE_ONE;
+  points.clear();
 }
 
 void bake_clampBakeTemp() {
@@ -72,4 +83,10 @@ void bake_clampBakeTemp() {
       sysBakeTempC = BAKE_TEMP_C_MIN;
     }
   }
+}
+
+void bake_bakeComplete_close() {
+  show_bakeComplete = false;
+
+  Serial.println("bake_bakeComplete_close called");
 }

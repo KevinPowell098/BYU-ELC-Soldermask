@@ -47,23 +47,28 @@ void drawPixelFB(uint16_t x, uint16_t y, uint16_t color) {
   framebuffer[y * TFT_WIDTH + x] = color;
 }
 
-void drawLineFB(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t weight, uint16_t color) {
-  float x0 = x;
-  float y0 = y;
-  float x1 = x + w;
-  float y1 = y + h;
+Box drawLineFB(uint16_t x, uint16_t y, int16_t w, int16_t h, uint16_t weight, uint16_t color, bool roundCaps) {
+  float x0 = (float)x;
+  float y0 = (float)y;
+  float x1 = (float)(x + w);
+  float y1 = (float)(y + h);
 
   float dx = x1 - x0;
   float dy = y1 - y0;
-
   float length = sqrtf(dx*dx + dy*dy);
-  if (length == 0) return;
+  if (length == 0) {
+    Box b(0,0,0,0);
+    return b;
+  }
 
-  // unit perpendicular vector scaled to weight/2
-  float ux = -dy / length;
-  float uy =  dx / length;
+  // Unit vectors: parallel and perpendicular to line
+  float px = dx / length;   // parallel
+  float py = dy / length;
+  float ux = -py;           // perpendicular
+  float uy =  px;
 
   float half = weight * 0.5f;
+  int reach = (int)ceilf(half);
 
   // Bresenham core
   int ix0 = x;
@@ -79,15 +84,27 @@ void drawLineFB(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t weight,
 
   while (true)
   {
-    int half = weight / 2;
+    for (int oy = -reach; oy <= reach; oy++) {
+      for (int ox = -reach; ox <= reach; ox++) {
+        // Perpendicular distance: controls thickness
+        float perpDist = fabsf(ox * ux + oy * uy);
 
-    for (int t = -half; t <= half; t++) {
-      // even-width correction
-      float offset = (weight % 2 == 0) ? (t + 0.5f) : t;
+        // Parallel distance from each endpoint: controls flat cap
+        float paraFromStart = (ox * px + oy * py);
+        float paraFromEnd   = length - paraFromStart;  // not used directly, see below
 
-      int xi = ix0 + (int)(ux * offset);
-      int yi = iy0 + (int)(uy * offset);
-      drawPixelFB(xi, yi, color);
+        // Offset of current Bresenham point along the line
+        float spineT = ((ix0 - x) * px + (iy0 - y) * py);
+
+        // Total parallel position of this pixel along the full line
+        float totalPara = spineT + (ox * px + oy * py);
+
+        if (perpDist <= half &&
+            totalPara >= -0.5f &&
+            totalPara <= length + 0.5f) {
+          drawPixelFB(ix0 + ox, iy0 + oy, color);
+        }
+      }
     }
 
     if (ix0 == ix1 && iy0 == iy1) break;
@@ -96,6 +113,24 @@ void drawLineFB(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t weight,
     if (e2 > -ay) { err -= ay; ix0 += sx; }
     if (e2 <  ax) { err += ax; iy0 += sy; }
   }
+
+  // if (roundCaps) {
+  //   float angleDeg = atan2f(dy, dx) * 57.29577951f;
+  //   uint16_t r = weight / 2;
+
+  //   // uint16_t startA = (uint16_t)fmodf(angleDeg + 90.0f  + 360.0f, 360.0f);
+  //   // uint16_t startB = (uint16_t)fmodf(angleDeg + 270.0f + 360.0f, 360.0f);
+  //   // drawArcFB(x, y, r, startA, startB, 1, color);
+  //   drawCircleFB(x - r, y - r, weight - 1, color);
+
+  //   // uint16_t endA = (uint16_t)fmodf(angleDeg - 90.0f + 360.0f, 360.0f);
+  //   // uint16_t endB = (uint16_t)fmodf(angleDeg + 90.0f + 360.0f, 360.0f);
+  //   // drawArcFB(x + w, y + h, r, endA, endB, 1, color);
+  //   drawCircleFB(x + w - r, y + h - r, weight - 1, color);
+  // }
+
+  Box b(x, y, x+w, y+h);
+  return b;
 }
 
 void drawArcFB(uint16_t x, uint16_t y,
@@ -530,4 +565,39 @@ Box expandBox(Box b, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
 
   Box box(x1, y1, x2, y2);
   return box;
+}
+
+void drawCircleFB(uint16_t x, uint16_t y, uint16_t d, uint16_t color) {
+
+  const float threshold = (d > 6) ? 0.5 : 0.8;
+  uint16_t x_o = 0;
+
+  if (d % 2) {
+    x_o = 1;
+    for (int i = y; i < y + d; i++) {
+      drawPixelFB(x + (d/2), i, color);
+    }
+
+    for (int i = x; i < x + d; i++) {
+      drawPixelFB(i, y + (d/2), color);
+    }
+  }
+  
+  for (int16_t x_c = 0; x_c < d/2; x_c++) {
+    float y_c = sqrt((d/2) * (d/2) - x_c * x_c);
+
+    if (y_c - floor(y_c) < threshold) {
+      y_c = floor(y_c);
+    } else {
+      y_c = ceil(y_c);
+    }
+
+    for (int16_t i = 0; i < y_c; i++) {
+      drawPixelFB(x + d/2 + x_o + x_c, y - y_c + d/2 + i, color);
+      drawPixelFB(x + d/2 - x_o + x_o - 1 - x_c, y - y_c + d/2 + i, color);
+
+      drawPixelFB(x + d/2 + x_o + x_c, y + y_c + d/2 + x_o - 1 - i, color);
+      drawPixelFB(x + d/2 - x_o + x_o - 1 - x_c, y + y_c + d/2 + x_o - 1 - i, color);
+    }
+  }
 }

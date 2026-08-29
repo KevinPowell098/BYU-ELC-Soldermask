@@ -7,11 +7,6 @@
 #include "fonts/font_stan16.h"
 #include "vars.h"
 
-// Functions to change tabs
-bool isProcessActive() { 
-  return (activePage == PAGE_ONE_PROCESS) || (activePage == PAGE_TWO_PROCESS); 
-}
-
 void tabOnePressed()   { if (!isProcessActive()) activePage = PAGE_ONE; }
 void tabTwoPressed()   { if (!isProcessActive()) activePage = PAGE_TWO; }
 void tabThreePressed() { if (!isProcessActive()) activePage = PAGE_THREE; }

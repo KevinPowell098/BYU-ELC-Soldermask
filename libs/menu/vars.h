@@ -86,7 +86,10 @@ extern uint16_t activePage;
 extern uint16_t cursor_y;
 
 // Temperature in Celsius
-extern uint16_t tempInC;
+extern uint16_t sysTempInC;
+
+// Time passed in current process
+extern uint32_t processTimeInS;
 
 
 /***** Color Constants *****/

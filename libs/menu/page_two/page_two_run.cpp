@@ -13,13 +13,9 @@
 // Color Constants
 // PAGE_TWO_PROCESS % 4 == PAGE_TWO
 static const uint16_t CURRENT_PAGE = PAGE_TWO_PROCESS;
-// static const uint16_t FONT_COLOR = font_colors[CURRENT_PAGE % 4];
-// static const uint16_t SHADOW_COLOR = borders[CURRENT_PAGE % 4];
-// static const uint16_t BG_COLOR = bgs[CURRENT_PAGE % 4];
-
-static const uint16_t FONT_COLOR = font_colors[1];
-static const uint16_t SHADOW_COLOR = borders[1];
-static const uint16_t BG_COLOR = bgs[1];
+static const uint16_t FONT_COLOR = font_colors[CURRENT_PAGE % 4];
+static const uint16_t SHADOW_COLOR = borders[CURRENT_PAGE % 4];
+static const uint16_t BG_COLOR = bgs[CURRENT_PAGE % 4];
 
 void drawUVProcess() {
   cursor_y = CURSOR_Y_DEFAULT;

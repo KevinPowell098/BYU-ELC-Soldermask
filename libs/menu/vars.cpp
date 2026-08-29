@@ -9,13 +9,16 @@
 bool isInit = true;
 
 // Current menu tab variables
-uint16_t activePage = PAGE_TWO;
+uint16_t activePage = PAGE_ONE;
 
 // Current y position
 uint16_t cursor_y;
 
 // Temperature in Celsius
-uint16_t tempInC = 0;
+uint16_t sysTempInC = 0;
+
+// Time passed in current process
+uint32_t processTimeInS = 0;
 
 
 /***** Color Constants *****/

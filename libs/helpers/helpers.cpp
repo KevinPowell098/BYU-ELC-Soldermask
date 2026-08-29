@@ -69,6 +69,7 @@ void initMenu() {
   isInit = false;
 }
 
-void updateTemp() {
-
+bool isProcessActive() {
+  bool isProcessPage = (activePage == PAGE_ONE_PROCESS || activePage == PAGE_TWO_PROCESS);
+  return isProcessPage;
 }

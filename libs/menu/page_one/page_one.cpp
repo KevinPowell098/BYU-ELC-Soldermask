@@ -260,7 +260,7 @@ void drawHeat_TempSetting() {
 
 void drawHeat_StartButton() {
   // Box constants
-  uint16_t padding = 110;
+  uint16_t padding = 112;
   uint16_t box_x = 2 * TEXT_PADDING;
   uint16_t box_w = (TFT_WIDTH - (2 * box_x)) - 1;
   uint16_t box_h = 80;

@@ -101,7 +101,7 @@ void initFramebuffer();
 uint16_t getColorFromGradient(const uint16_t* colors, size_t color_cnt, uint16_t place);
 
 void drawPixelFB(uint16_t x, uint16_t y, uint16_t color);
-void drawLineFB(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t weight, uint16_t color);
+Box drawLineFB(uint16_t x, uint16_t y, int16_t w, int16_t h, uint16_t weight, uint16_t color, bool roundCaps = false);
 void drawArcFB(uint16_t x, uint16_t y, uint16_t r, uint16_t a, uint16_t b, uint16_t weight, uint16_t color);
 Box drawRectOutlineFB(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t r, uint16_t weight, uint16_t color);
 Box drawRectFB(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
@@ -123,5 +123,7 @@ Box drawThreePointTriangleFB(uint16_t x1u, uint16_t y1u,
                               uint16_t* colors, size_t color_cnt);
 
 Box expandBox(Box b, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+
+void drawCircleFB(uint16_t x, uint16_t y, uint16_t r, uint16_t color);
 
 #endif
